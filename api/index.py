@@ -1,103 +1,117 @@
-# api/index.py
+# api/app.py
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import requests
 from .matcher import EnhancedResumeJobMatcher
-from .utils import  validate_input
+from .utils import validate_input
 import re
 from .utils import LATEX_TEMPLATE
+from flask_cors import CORS
 
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['UPLOAD_FOLDER'] = '/tmp'
+def create_app():
+    app = Flask(__name__)
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+    app.config['UPLOAD_FOLDER'] = '/tmp'
 
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["100 per day", "10 per hour"]
-)
+    CORS(app)
 
-matcher = EnhancedResumeJobMatcher()
+    # Initialize matcher
+    matcher = EnhancedResumeJobMatcher()
 
-@app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({"status": "healthy"})
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        return jsonify({"status": "healthy"})
 
-def process_for_json(result):
-    """Convert sets to lists for JSON serialization"""
-    if isinstance(result, dict):
-        return {k: process_for_json(v) for k, v in result.items()}
-    if isinstance(result, set):
-        return list(result)
-    return result
+    def process_for_json(result):
+        """Convert sets to lists for JSON serialization"""
+        if isinstance(result, dict):
+            return {k: process_for_json(v) for k, v in result.items()}
+        if isinstance(result, set):
+            return list(result)
+        return result
 
-@app.route('/api/match', methods=['POST'])
-@limiter.limit("10 per minute")
-def match_resumes():
-    try:
-        # Check for resume URLs in JSON body
-        data = request.get_json()
-        if not data or 'resume_urls' not in data:
-            return jsonify({"error": "No resume URLs provided"}), 400
-        
-        if 'job_description' not in data:
-            return jsonify({"error": "No job description provided"}), 400
-
-        job_description = data['job_description']
-        if not validate_input(job_description):
-            return jsonify({"error": "Invalid job description"}), 400
-
-        results = []
-        resume_urls = data['resume_urls']
-        
-        for url in resume_urls:
-            try:
-                # Process URL directly with the matcher
-                result = matcher.process_resume(url, job_description)
-                results.append(process_for_json(result))
-            except Exception as e:
-                app.logger.error(f"Error processing resume URL {url}: {str(e)}")
-                # Continue processing other URLs even if one fails
-                continue
-
-        return jsonify({
-            "success": True,
-            "matches": results
-        })
-
-    except Exception as e:
-        app.logger.error(f"Error processing request: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
-
-@app.route('/api/generate-resume', methods=['POST'])
-def generate_resume():
-    try:
-        job_description = request.json.get('job_description')
-        user_data = request.json.get('user_data')
-        if not job_description or not user_data:
-            return jsonify({"error": "Missing required fields"}), 400
-
-
-        token = "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"
-        enhanced_content = enhance_with_huggingface(
-            user_data,
-            job_description,
-            LATEX_TEMPLATE,
-            token
-        )
-        
-        if not enhanced_content:
-            return jsonify({"error": "Failed to generate resume"}), 500
+    @app.route('/api/match', methods=['POST'])
+    def match_resumes():
+        try:
+            data = request.get_json()
+            if not data or 'resume_urls' not in data:
+                return jsonify({"error": "No resume URLs provided"}), 400
             
-        return enhanced_content, 200, {'Content-Type': 'text/html'}
+            if 'job_description' not in data:
+                return jsonify({"error": "No job description provided"}), 400
 
-    except Exception as error:
-        print(f"API Error: {str(error)}")
-        return jsonify({
-            "error": "Failed to generate resume",
-            "details": str(error)
-        }), 500
+            job_description = data['job_description']
+            if not validate_input(job_description):
+                return jsonify({"error": "Invalid job description"}), 400
+
+            results = []
+            resume_urls = data['resume_urls']
+            
+            highest_score = -1
+            best_match = None
+            
+            for url in resume_urls:
+                try:
+                    result = matcher.process_resume(url, job_description)
+                    processed_result = process_for_json(result)
+                    results.append(processed_result)
+                    
+                    if processed_result['total_score'] > highest_score:
+                        highest_score = processed_result['total_score']
+                        best_match = processed_result['resume']
+                        
+                except Exception as e:
+                    app.logger.error(f"Error processing resume URL {url}: {str(e)}")
+                    continue
+
+            return jsonify({
+                "success": True,
+                "highest_ranking_resume": best_match
+            })
+
+        except Exception as e:
+            app.logger.error(f"Error processing request: {str(e)}")
+            return jsonify({"error": "Internal server error"}), 500
+
+    @app.route('/api/generate-resume', methods=['POST'])
+    def generate_resume():
+        try:
+            job_description = request.json.get('job_description')
+            user_data = request.json.get('user_data')
+            if not job_description or not user_data:
+                return jsonify({"error": "Missing required fields"}), 400
+
+            token = "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"
+            enhanced_content = enhance_with_huggingface(
+                user_data,
+                job_description,
+                LATEX_TEMPLATE,
+                token
+            )
+            
+            if not enhanced_content:
+                return jsonify({"error": "Failed to generate resume"}), 500
+                
+            return enhanced_content, 200, {'Content-Type': 'text/html'}
+
+        except Exception as error:
+            print(f"API Error: {str(error)}")
+            return jsonify({
+                "error": "Failed to generate resume",
+                "details": str(error)
+            }), 500
+
+    @app.errorhandler(413)
+    def too_large(e):
+        return jsonify({"error": "File too large"}), 413
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return jsonify({"error": "Rate limit exceeded"}), 429
+
+    return app
+
 def enhance_with_huggingface(user_data: str, job_description: str, template: str, api_token: str) -> str:
     """Enhance resume content using Qwen 2.5 Coder API with exact template matching."""
     try:
@@ -107,7 +121,6 @@ def enhance_with_huggingface(user_data: str, job_description: str, template: str
         }
         API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct"
 
-        # More detailed and structured prompt
         prompt = f"""You are an expert ATS optimization specialist and resume formatter. Your task is to create an HTML resume that exactly matches the structure and format of the provided LaTeX template while optimizing content for ATS compatibility.
 
 Template Analysis:
@@ -170,7 +183,6 @@ Important: The output must be valid HTML that maintains the exact same structure
         else:
             content = ""
             
-        # Clean up any markdown code block indicators
         content = re.sub(r'^```html\n', '', content)
         content = re.sub(r'\n```$', '', content)
         
@@ -180,10 +192,3 @@ Important: The output must be valid HTML that maintains the exact same structure
         print(f"Qwen API error: {str(e)}")
         return ""
 
-@app.errorhandler(413)
-def too_large(e):
-    return jsonify({"error": "File too large"}), 413
-
-@app.errorhandler(429)
-def ratelimit_handler(e):
-    return jsonify({"error": "Rate limit exceeded"}), 429
