@@ -4,6 +4,21 @@ worker_class = "sync"
 worker_connections = 1000
 timeout = 30
 keepalive = 2
-errorlog = "-"
-accesslog = "-"
-capture_output = True
+
+# Log settings
+loglevel = "info"
+accesslog = "-"  # stdout
+errorlog = "-"   # stderr
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
+
+# Worker settings
+max_requests = 1000
+max_requests_jitter = 50
+
+# Server mechanics
+daemon = False
+pidfile = None
+umask = 0
+user = None
+group = None
+tmp_upload_dir = None
