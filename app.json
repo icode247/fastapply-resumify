@@ -1,12 +1,19 @@
 {
     "name": "Resume ATS API",
     "description": "Resume matching and generation API",
-    "scripts": {
-        "postdeploy": "python -m spacy download en_core_web_sm"
-    },
     "buildpacks": [
         {
             "url": "heroku/python"
         }
-    ]
+    ],
+    "success_url": "/health",
+    "formation": {
+        "web": {
+            "quantity": 1,
+            "size": "basic"
+        }
+    },
+    "scripts": {
+        "postdeploy": "python -m spacy download en_core_web_sm"
+    }
 }
