@@ -1,6 +1,6 @@
 {
     "name": "Resume ATS API",
-    "description": "Resume matching and generation API",
+    "description": "Resume matching, optimization, and generation API",
     "buildpacks": [
         {
             "url": "heroku/python"
@@ -15,5 +15,11 @@
     },
     "scripts": {
         "postdeploy": "python -m spacy download en_core_web_sm"
+    },
+    "env": {
+        "HUGGINGFACE_API_TOKEN": {
+            "description": "API token for Hugging Face inference API",
+            "required": true
+        }
     }
 }

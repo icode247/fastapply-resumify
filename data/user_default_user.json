@@ -1,0 +1,27 @@
+{
+  "user_id": "default_user",
+  "resume_versions": [
+    {
+      "id": "b7526106-a7f3-42e5-a2a2-85aad45f4fe3",
+      "name": "Software Engineer",
+      "date": "2025-03-08",
+      "notes": "",
+      "content": "",
+      "file_url": "/uploads/resumes/1741427138_a39ab0bf_1732798446768-UmaVictorResume_1.pdf"
+    }
+  ],
+  "job_applications": [
+    {
+      "id": "c23bedef-0b76-4b98-a439-eb0d1e79c2c6",
+      "company": "Google",
+      "position": "Senior Software Engineer",
+      "dateApplied": "2025-03-08",
+      "status": "applied",
+      "resumeVersion": "b7526106-a7f3-42e5-a2a2-85aad45f4fe3",
+      "notes": "",
+      "jobDescription": "",
+      "contactInfo": "zionekekenta@gmail.com",
+      "interviewDates": []
+    }
+  ]
+}

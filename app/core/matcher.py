@@ -1,3 +1,7 @@
+"""
+Enhanced resume-job matching functionality.
+"""
+
 import PyPDF2
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -472,3 +476,4 @@ class EnhancedResumeJobMatcher:
         
         # Combine all role-relevant contexts
         return f"{role_level} role: {' ... '.join(role_matches)}"
+
