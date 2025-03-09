@@ -3,7 +3,7 @@ Resume optimization API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.services.resume_processor import ATSResumeProcessor
 
 # Create blueprint
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 resume_processor = ATSResumeProcessor(api_token="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")
 
 @bp.route('/optimize-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 def optimize_resume():
     """
     Endpoint to optimize a resume for ATS based on a job description
@@ -60,7 +60,7 @@ def optimize_resume():
         }), 500
 
 @bp.route('/generate-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 def generate_resume():
     try:
         job_description = request.json.get('job_description')

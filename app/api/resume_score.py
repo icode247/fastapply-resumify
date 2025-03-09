@@ -4,7 +4,7 @@ Resume Scoring API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.core.resume_score import ResumeScorer
 from app.services.firebase import parse_resume_from_firebase
 from app.utils.validators import validate_input
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 resume_scorer = ResumeScorer()
 
 @bp.route('/score-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 def score_resume():
     """
     Score a resume based on best practices and optionally a job description
@@ -88,7 +88,7 @@ def score_resume():
         }), 500
 
 @bp.route('/improve-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 def improve_resume():
     """
     Generate an improved version of a resume

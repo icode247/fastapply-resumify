@@ -3,7 +3,7 @@ Resume parsing API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response, invalidate_cache
+# from app.utils.redis_cache import cache_response, invalidate_cache
 from app.services.firebase import parse_resume_from_firebase
 
 # Create blueprint
@@ -11,7 +11,7 @@ bp = Blueprint('parse', __name__)
 logger = logging.getLogger(__name__)
 
 @bp.route('/parse-resume', methods=['POST'])
-@cache_response(expiration=3600)  # Cache for 1 hour as parsing is expensive
+# @cache_response(expiration=3600)  # Cache for 1 hour as parsing is expensive
 def parse_resume():
     """
     Parse resume from a Firebase storage URL
@@ -26,9 +26,9 @@ def parse_resume():
         
         # Check if request has a force_refresh parameter
         force_refresh = data.get('force_refresh', False)
-        if force_refresh:
-            # Invalidate the cache for this specific request
-            invalidate_cache('/api/parse-resume', data)
+        # if force_refresh:
+        #     # Invalidate the cache for this specific request
+        #     invalidate_cache('/api/parse-resume', data)
         
         # Call the resume parser function
         logger.info(f"Parsing resume from URL: {file_url[:50]}...")

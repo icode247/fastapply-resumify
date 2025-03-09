@@ -11,7 +11,7 @@ def create_app(config_object=None):
     Create and configure the Flask application
     """
     from app.utils.logging import create_app_logger, RequestLogger
-    from app.utils.redis_cache import cache_response, redis_client, get_cache_stats
+    # from app.utils.redis_cache import cache_response, redis_client, get_cache_stats
     
     app = Flask(__name__)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -38,12 +38,12 @@ def create_app(config_object=None):
     logger = create_app_logger('resumify-api')
     RequestLogger(app, logger)
     
-    # Check Redis connection
-    try:
-        redis_client.ping()
-        logger.info("Successfully connected to Redis")
-    except Exception as e:
-        logger.error(f"Failed to connect to Redis: {str(e)}", exc_info=True)
+    # # Check Redis connection
+    # try:
+    #     redis_client.ping()
+    #     logger.info("Successfully connected to Redis")
+    # except Exception as e:
+    #     logger.error(f"Failed to connect to Redis: {str(e)}", exc_info=True)
 
     # Import and register blueprints
     from app.api.match import bp as match_bp
@@ -76,17 +76,82 @@ def create_app(config_object=None):
     app.register_blueprint(linkedin_hashtags_bp, url_prefix='/api')
     app.register_blueprint(interview_bp, url_prefix='/api')  
 
-    # Health check endpoint
-    @app.route('/health', methods=['GET'])
-    @cache_response(expiration=60)  # Cache for 1 minute
-    def health_check():
-        redis_status = "connected" if redis_client.ping() else "disconnected"
-        cache_stats = get_cache_stats()
+    # # Health check endpoint
+    # @app.route('/health', methods=['GET'])
+    # @cache_response(expiration=60)  # Cache for 1 minute
+    # def health_check():
+    #     redis_status = "connected" if redis_client.ping() else "disconnected"
+    #     cache_stats = get_cache_stats()
+        
+    #     return jsonify({
+    #         "status": "healthy",
+    #         "redis": redis_status,
+    #         "cache": cache_stats
+    #     })
+
+
+    @app.route('/debug/memory-profile', methods=['GET'])
+    def memory_profile():
+        import tracemalloc
+        import gc
+        import os
+        
+        # Collect garbage before profiling
+        gc.collect()
+        
+        # Start memory tracking if not already started
+        if not tracemalloc.is_tracing():
+            tracemalloc.start()
+        
+        # Get current snapshot
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        
+        # Format results
+        memory_usage = []
+        for stat in top_stats[:20]:  # Top 20 memory users
+            frame = stat.traceback[0]  # Access the first frame directly
+            memory_usage.append({
+                'file': os.path.basename(frame.filename),  # Just the filename, not the full path
+                'line': frame.lineno,
+                'size_kb': stat.size / 1024
+            })
+        
+        # Get total process memory from system
+        import psutil
+        process = psutil.Process()
+        memory_info = process.memory_info()
         
         return jsonify({
-            "status": "healthy",
-            "redis": redis_status,
-            "cache": cache_stats
+            'memory_usage': memory_usage,
+            'total_allocated_mb': tracemalloc.get_traced_memory()[0] / (1024 * 1024),  # MB
+            'total_process_mb': memory_info.rss / (1024 * 1024),  # MB
+            'memory_percent': process.memory_percent()
+        })
+    @app.route('/debug/large-objects', methods=['GET'])
+    def get_large_objects():
+        """Find large objects in memory"""
+        import sys
+        import gc
+        
+        # Collect all objects
+        gc.collect()
+        objects = []
+        
+        # Get size of all objects
+        for obj in gc.get_objects():
+            try:
+                size = sys.getsizeof(obj)
+                if size > 1024 * 1024:  # Larger than 1MB
+                    objects.append({
+                        'type': str(type(obj)),
+                        'size_mb': size / (1024 * 1024)
+                    })
+            except:
+                pass
+        print(objects)
+        return jsonify({
+            'large_objects': sorted(objects, key=lambda x: x['size_mb'], reverse=True)[:20]
         })
 
     # Error handlers

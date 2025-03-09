@@ -4,7 +4,7 @@ LinkedIn Headline API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.core.linkedin_headline import LinkedInHeadlineGenerator
 from app.utils.validators import validate_request_json
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 headline_generator = LinkedInHeadlineGenerator()
 
 @bp.route('/generate-linkedin-headline', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['currentRole', 'industry'])
 def generate_linkedin_headline():
     """

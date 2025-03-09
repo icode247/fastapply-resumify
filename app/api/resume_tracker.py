@@ -4,7 +4,7 @@ API endpoints for the Resume Tracker feature.
 """
 from flask import Blueprint, request, jsonify, current_app
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.services.resume_tracker import ResumeTrackerService
 
 # Create blueprint
@@ -27,7 +27,7 @@ def get_user_id():
 # Resume Version Endpoints
 
 @bp.route('/resume-versions', methods=['GET'])
-@cache_response(expiration=300)  # Cache for 5 minutes
+# @cache_response(expiration=300)  # Cache for 5 minutes
 def get_resume_versions():
     """Get all resume versions for a user"""
     try:
@@ -47,7 +47,7 @@ def get_resume_versions():
         }), 500
 
 @bp.route('/resume-versions/<version_id>', methods=['GET'])
-@cache_response(expiration=300)  # Cache for 5 minutes
+# @cache_response(expiration=300)  # Cache for 5 minutes
 def get_resume_version(version_id):
     """Get a specific resume version"""
     try:
@@ -178,7 +178,7 @@ def delete_resume_version(version_id):
         }), 500
 
 @bp.route('/resume-versions/<version_id>/usage', methods=['GET'])
-@cache_response(expiration=300)  # Cache for 5 minutes
+# @cache_response(expiration=300)  # Cache for 5 minutes
 def get_resume_version_usage(version_id):
     """Get job applications using a specific resume version"""
     try:
@@ -200,7 +200,7 @@ def get_resume_version_usage(version_id):
 # Job Application Endpoints
 
 @bp.route('/job-applications', methods=['GET'])
-@cache_response(expiration=300)  # Cache for 5 minutes
+# @cache_response(expiration=300)  # Cache for 5 minutes
 def get_job_applications():
     """Get all job applications for a user"""
     try:
@@ -220,7 +220,7 @@ def get_job_applications():
         }), 500
 
 @bp.route('/job-applications/<job_id>', methods=['GET'])
-@cache_response(expiration=300)  # Cache for 5 minutes
+# @cache_response(expiration=300)  # Cache for 5 minutes
 def get_job_application(job_id):
     """Get a specific job application"""
     try:
@@ -345,7 +345,7 @@ def delete_job_application(job_id):
 # Analytics Endpoints
 
 @bp.route('/analytics', methods=['GET'])
-@cache_response(expiration=600)  # Cache for 10 minutes
+# @cache_response(expiration=600)  # Cache for 10 minutes
 def get_analytics():
     """Get analytics for a user's job applications"""
     try:

@@ -4,7 +4,7 @@ Cover Letter API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.core.cover_letter import CoverLetterGenerator
 from app.utils.validators import validate_request_json
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 cover_letter_generator = CoverLetterGenerator()
 
 @bp.route('/generate-cover-letter', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['fullName', 'jobTitle', 'company'])
 def generate_cover_letter():
     """

@@ -4,7 +4,7 @@ LinkedIn feature API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.core.linkedin_summary import LinkedInSummaryGenerator
 from app.core.linkedin_post import LinkedInPostGenerator
 from app.core.linkedin_recommendation import LinkedInRecommendationGenerator
@@ -20,7 +20,7 @@ post_generator = LinkedInPostGenerator()
 recommendation_generator = LinkedInRecommendationGenerator()
 
 @bp.route('/generate-linkedin-summary', methods=['POST'], endpoint='generate_linkedin_summary')
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['jobTitle', 'industry', 'keySkills'])
 def generate_linkedin_summary():
     """
@@ -54,7 +54,7 @@ def generate_linkedin_summary():
         }), 500
 
 @bp.route('/generate-linkedin-post', methods=['POST'], endpoint='generate_linkedin-post')
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['topic', 'purpose'])
 def generate_linkedin_post():
     """
@@ -88,7 +88,7 @@ def generate_linkedin_post():
         }), 500
 
 @bp.route('/generate-linkedin-recommendation', methods=['POST'], endpoint='generate-linkedin-recommendation')
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['yourName', 'recipientName', 'recipientTitle', 'keyStrengths'])
 def generate_linkedin_recommendation():
     """

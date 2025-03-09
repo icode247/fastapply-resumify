@@ -3,7 +3,7 @@ Resume matching API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-from app.utils.redis_cache import cache_response
+# from app.utils.redis_cache import cache_response
 from app.core.matcher import EnhancedResumeJobMatcher
 from app.utils.helpers import validate_input, process_for_json
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 matcher = EnhancedResumeJobMatcher()
 
 @bp.route('/match', methods=['POST'])
-@cache_response(expiration=3600)  # Cache for 1 hour
+# @cache_response(expiration=3600)  # Cache for 1 hour
 def match_resumes():
     try:
         data = request.get_json()
