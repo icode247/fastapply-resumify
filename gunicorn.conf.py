@@ -1,5 +1,9 @@
-bind = "0.0.0.0:8000"
-workers = 2  # Reduced from 4
+import os
+
+port = os.environ.get("PORT", "8000")
+bind = f"0.0.0.0:{port}"
+
+workers = 2
 worker_class = "gevent"  
 worker_connections = 750  
 timeout = 60 
