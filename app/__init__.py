@@ -11,7 +11,7 @@ def create_app(config_object=None):
     Create and configure the Flask application
     """
     from app.utils.logging import create_app_logger, RequestLogger
-    # from app.utils.redis_cache import cache_response, redis_client, get_cache_stats
+    from app.utils.redis_cache import cache_response, redis_client, get_cache_stats
     
     app = Flask(__name__)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -38,12 +38,12 @@ def create_app(config_object=None):
     logger = create_app_logger('resumify-api')
     RequestLogger(app, logger)
     
-    # # Check Redis connection
-    # try:
-    #     redis_client.ping()
-    #     logger.info("Successfully connected to Redis")
-    # except Exception as e:
-    #     logger.error(f"Failed to connect to Redis: {str(e)}", exc_info=True)
+    # Check Redis connection
+    try:
+        redis_client.ping()
+        logger.info("Successfully connected to Redis")
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis: {str(e)}", exc_info=True)
 
     # Import and register blueprints
     from app.api.match import bp as match_bp
@@ -76,18 +76,51 @@ def create_app(config_object=None):
     app.register_blueprint(linkedin_hashtags_bp, url_prefix='/api')
     app.register_blueprint(interview_bp, url_prefix='/api')  
 
-    # # Health check endpoint
-    # @app.route('/health', methods=['GET'])
-    # @cache_response(expiration=60)  # Cache for 1 minute
-    # def health_check():
-    #     redis_status = "connected" if redis_client.ping() else "disconnected"
-    #     cache_stats = get_cache_stats()
+    # Health check endpoint
+    @app.route('/health', methods=['GET'])
+    @cache_response(expiration=60)  # Cache for 1 minute
+    def health_check():
+        redis_status = "connected" if redis_client.ping() else "disconnected"
+        cache_stats = get_cache_stats()
         
-    #     return jsonify({
-    #         "status": "healthy",
-    #         "redis": redis_status,
-    #         "cache": cache_stats
-    #     })
+        return jsonify({
+            "status": "healthy",
+            "redis": redis_status,
+            "cache": cache_stats
+        })
+
+
+    @app.route('/debug/memory-profile', methods=['GET'])
+    def memory_profile():
+        import tracemalloc
+        import gc
+        
+        # Collect garbage before profiling
+        gc.collect()
+        
+        # Start memory tracking
+        tracemalloc.start()
+        
+        # Get current snapshot
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        
+        # Format results
+        memory_usage = []
+        for stat in top_stats[:20]:  # Top 20 memory users
+            memory_usage.append({
+                'file': str(stat.traceback.frame.filename),
+                'line': stat.traceback.frame.lineno,
+                'size_kb': stat.size / 1024
+            })
+        
+        # Stop tracking to clean up
+        tracemalloc.stop()
+        
+        return jsonify({
+            'memory_usage': memory_usage,
+            'total_allocated': tracemalloc.get_traced_memory()[0] / (1024 * 1024)  # MB
+        })
 
     # Error handlers
     @app.errorhandler(413)

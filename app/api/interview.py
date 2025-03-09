@@ -4,7 +4,7 @@ Interview Answer API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-# from app.utils.redis_cache import cache_response
+from app.utils.redis_cache import cache_response
 from app.core.interview_answer import InterviewAnswerGenerator
 from app.utils.validators import validate_request_json
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 interview_answer_generator = InterviewAnswerGenerator()
 
 @bp.route('/generate-interview-answer', methods=['POST'], endpoint='generate_interview_answer')
-# @cache_response(expiration=7200)  # Cache for 2 hours
+@cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['company', 'jobTitle', 'question'])
 def generate_interview_answer():
     """
@@ -50,7 +50,7 @@ def generate_interview_answer():
         }), 500
 
 @bp.route('/common-questions', methods=['GET'], endpoint='common_questions')
-# @cache_response(expiration=86400)  # Cache for 24 hours
+@cache_response(expiration=86400)  # Cache for 24 hours
 def get_common_questions():
     """
     Get a list of common interview questions by company and/or category
@@ -91,7 +91,7 @@ def get_common_questions():
         }), 500
 
 @bp.route('/company-data', methods=['GET'], endpoint='company_data')
-# @cache_response(expiration=86400)  # Cache for 24 hours
+@cache_response(expiration=86400)  # Cache for 24 hours
 def get_company_data():
     """
     Get data about top companies for interview preparation

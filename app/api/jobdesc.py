@@ -4,7 +4,7 @@ Job Description API endpoints.
 """
 from flask import Blueprint, request, jsonify
 import logging
-# from app.utils.redis_cache import cache_response
+from app.utils.redis_cache import cache_response
 from app.core.job_description import JobDescriptionGenerator
 from app.utils.validators import validate_request_json
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 job_desc_generator = JobDescriptionGenerator()
 
 @bp.route('/generate-job-description', methods=['POST'])
-# @cache_response(expiration=7200)  # Cache for 2 hours
+@cache_response(expiration=7200)  # Cache for 2 hours
 @validate_request_json(['jobTitle', 'company', 'industry', 'experienceLevel'])
 def generate_job_description():
     """
@@ -28,6 +28,7 @@ def generate_job_description():
         # Generate job description
         logger.info(f"Generating job description for {data.get('jobTitle')} at {data.get('company')}")
         result = job_desc_generator.generate_job_description(data)
+        print(result)
         
         if result.get('success', False):
             return jsonify({
