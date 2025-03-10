@@ -177,11 +177,13 @@ class ATSResumeProcessor:
           ```
           {user_data}
           ```
-
+        - Reword experience descriptions to incoporate all relevant keywords from job description.                    
+        - Title should match the job title in job description
+        - All the fields here are important to render the resume. So we must not miss any of them in the output.
         - Structure the output this JSON format:
           ```
-        - Reword experience descriptions to incoporate all relevant keywords from job description.
           {{
+            "title": "Backend Developer & API Specialist",
             "education": [
                 {{
                 "course": "M.S. in Computer Science, GPA - 3.91",
@@ -302,9 +304,10 @@ class ATSResumeProcessor:
                     ```
                     {job_description}
                     ```
-                    - Structure the output in this JSON format:
                     - Reword experience descriptions to incorporate all relevant keywords from job description.
                     - Title should match the job title in job description
+                    - All the fields here are important to render the resume. So we must not miss any of them in the output.
+                    - Structure the output in this JSON format:
                     {{
 
                         "name": "Ekekenta Odonyenfe Clinton",

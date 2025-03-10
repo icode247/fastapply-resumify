@@ -22,7 +22,7 @@ def create_app(config_object=None):
         app.config.from_object(config_object)
 
     # Setup CORS
-    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3001", "http://localhost:3000", "https://fastapply.co", "https://www.linkedin.com"]}})
+    CORS(app, resources={r"/api/*": {"origins": ["*"]}})
 
     # Configure logging
     logging.basicConfig(

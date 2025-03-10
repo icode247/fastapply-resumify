@@ -25,13 +25,12 @@ def api_generate_resume_pdf():
             return jsonify({"error": "Missing user_data"}), 400
         if not resume_data:
             return jsonify({"error": "Missing resume_data"}), 400
-        
         # Extract fields from user_data with defaults
         author = user_data.get('author', 'Anonymous')
         email = user_data.get('email', 'abc@xyz.com')
         phone = user_data.get('phone', '00-0000000000')
         address = user_data.get('address', 'XXX')
-        
+
         # Add contact info to resume_data
         resume_data['email'] = email
         resume_data['phone'] = phone
