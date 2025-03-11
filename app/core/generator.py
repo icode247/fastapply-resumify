@@ -172,12 +172,12 @@ def generate_resume_pdf(author, resume_data):
     """
     # Use provided author or get from resume_data
     if not author and 'name' in resume_data:
-        author = resume_data.get('name', 'Anonymous')
+        author = resume_data.get('name', '')
        
     # Fallback for direct contact fields
-    email = resume_data.get('email', 'abc@xyz.com')
-    phone = resume_data.get('phone', '00-0000000000')
-    address = resume_data.get('address', 'XXX')
+    email = resume_data.get('email', '')
+    phone = resume_data.get('phone', '')
+    address = resume_data.get('address', '')
     
     # Get job title if available
     job_title = resume_data.get('title', '')
