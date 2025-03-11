@@ -163,6 +163,7 @@ class ATSResumeProcessor:
             # Solution 1: Escape all curly braces in the JSON template
             prompt = f"""
         Generate a 100% ATS-friendly resume data optimized for this exact job description below. Follow these instructions strictly to avoid hallucination:
+        - You must not hallucinate.
 
         - Extract all details (e.g., experience, skills, education, certifications) from the provided resume text: 
           ```
@@ -263,7 +264,7 @@ class ATSResumeProcessor:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature= 0.3,
+                temperature= 0.4,
             )
             result= chat_completion.choices[0].message.content
             try:
