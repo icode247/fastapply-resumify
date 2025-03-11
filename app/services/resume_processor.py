@@ -178,7 +178,7 @@ class ATSResumeProcessor:
           {user_data}
           ```
         - Reword experience descriptions to incoporate all relevant keywords from job description.                    
-        - Title should match the job title in job description
+        - Title field must match the job title in job description
         - All the fields here are important to render the resume. So we must not miss any of them in the output.
         - Structure the output this JSON format:
           ```
