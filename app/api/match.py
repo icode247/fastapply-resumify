@@ -22,16 +22,27 @@ def match_resumes():
         if not data or 'resume_urls' not in data:
             return jsonify({"error": "No resume URLs provided"}), 400
         
-        if 'job_description' not in data:
-            return jsonify({"error": "No job description provided"}), 400
-
-        job_description = data['job_description']
-        if not validate_input(job_description):
-            return jsonify({"error": "Invalid job description"}), 400
-
-        results = []
         resume_urls = data['resume_urls']
         
+        # Check if job description is valid
+        job_description_valid = False
+        if 'job_description' in data:
+            job_description = data['job_description']
+            if validate_input(job_description):
+                job_description_valid = True
+        
+        # If job description is invalid or not provided, return first resume as highest ranking
+        if not job_description_valid:
+            if resume_urls and len(resume_urls) > 0:
+                return jsonify({
+                    "success": True,
+                    "highest_ranking_resume": resume_urls[0]
+                })
+            else:
+                return jsonify({"error": "No resume URLs provided"}), 400
+        
+        # Normal matching process if job description is valid
+        results = []
         highest_score = -1
         best_match = None
         
