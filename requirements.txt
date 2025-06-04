@@ -95,3 +95,5 @@ Werkzeug==2.0.3
 wrapt==1.17.0
 zope.event==5.0
 zope.interface==7.2
+APScheduler==3.10.4
+resend~=0.8.0
