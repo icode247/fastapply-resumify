@@ -4,7 +4,7 @@ import resend
 
 # Attempt to import from app.email_templates
 try:
-    from app.email_templates import (
+    from app.utils.email_templates import (
         EMAIL_TEMPLATES,
         # YOUR_PLATFORM_NAME, # Removed this import
         SCENARIO_COMPLETED_3_APPLICATIONS,

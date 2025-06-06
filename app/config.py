@@ -27,7 +27,7 @@ class Config:
     # API integration settings
     HUGGINGFACE_API_TOKEN = os.environ.get('HUGGINGFACE_API_TOKEN', '')
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-    
+    RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
     # CORS settings
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
     

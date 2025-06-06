@@ -4,22 +4,32 @@ import os
 from apscheduler.schedulers.blocking import BlockingScheduler
 import redis
 
+import os
+from dotenv import load_dotenv
+
+# Determine the path to the .env file (assuming it's in the project root)
+# If scheduler.py is in app/ and .env is in resumify/, then .env is one level up.
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env') 
+
+# Check if the .env file exists at that path
+if os.path.exists(dotenv_path):
+    print(f"Loading .env file from: {dotenv_path}") # For debugging
+    load_dotenv(dotenv_path=dotenv_path)
+else:
+    print(f".env file not found at: {dotenv_path}. Relying on system environment variables.") # For debugging
+
 # Assuming these modules are in the app directory and Python path is set up correctly
 try:
-    from app.user_activity_monitor import (
+    from app.core.user_activity_monitor import (
         find_users_for_emailing,
         mark_user_processed,
         SCENARIO_COMPLETED_3_APPLICATIONS,
         SCENARIO_INACTIVE_1_OR_2_APPS,
         SCENARIO_NO_APPS_AFTER_SIGNUP
     )
-    from app.email_service import send_transactional_email
+    from app.services.email_service import send_transactional_email
 except ImportError as e:
     logging.critical(f"Failed to import necessary modules: {e}. Ensure app structure is correct and PYTHONPATH includes 'app'.")
-    # Depending on the setup, you might want to exit here if imports fail
-    # For now, we'll let it potentially fail later if functions aren't found
-    # This helps in environments where parts of the app might be tested independently
-    # but for a full scheduler run, these are critical.
     # Define fallbacks if you want the script to attempt to run further for partial testing,
     # but this is generally not recommended for production schedulers.
     def find_users_for_emailing(): logging.error("find_users_for_emailing not imported"); return {}
@@ -37,12 +47,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 FLASK_LIMITER_REDIS_PATTERN = os.environ.get('FLASK_LIMITER_REDIS_PATTERN', 'LIMITER/*')
 
-scheduler = BlockingScheduler(timezone="UTC") # Explicitly set timezone for cron
+scheduler = BlockingScheduler(timezone="UTC") # Explicitly set timezone
 
 def reset_daily_rate_limits():
     """
     Connects to Redis and deletes keys associated with Flask-Limiter's daily limits.
-    This function is intended to be run daily to reset rate limits.
+    This function is intended to be run daily at midnight UTC.
     """
     logging.info("Starting daily rate limit reset job.")
     try:
@@ -84,6 +94,7 @@ def send_scheduled_emails():
     logging.info("Starting scheduled email sending process...")
     try:
         users_to_email_by_scenario = find_users_for_emailing()
+        logging.info(f"users_to_email_by_scenario: {users_to_email_by_scenario}")  # Debugging line to see the structure
 
         if not users_to_email_by_scenario:
             logging.info("No users found for any email scenarios.")
@@ -96,13 +107,10 @@ def send_scheduled_emails():
 
             logging.info(f"Processing {len(user_list)} users for scenario: {scenario_key}")
             for user_data in user_list:
+                logging.info(f"Processing user data: {user_data}")  # Better logging
                 user_id = user_data.get('user_id')
                 email = user_data.get('email')
-                # User name might not be directly in user_data, depends on API.
-                # Assuming 'email' field might be used as a proxy or a generic name.
-                # Or that user_activity_monitor might add a 'name' field if available.
-                # For now, let's assume email_service handles blank user_name.
-                user_name = user_data.get('name', user_data.get('user_name', ''))
+                user_name = user_data.get('user_name', '')
 
                 if not user_id or not email:
                     logging.warning(f"Missing user_id or email for user data: {user_data}. Skipping.")
@@ -140,13 +148,12 @@ if __name__ == "__main__":
     logging.info("Scheduler starting up...")
 
     # Schedule the rate limit reset job to run every day at midnight UTC
-    scheduler.add_job(reset_daily_rate_limits, 'cron', hour=0, minute=0, misfire_grace_time=None)
-    logging.info("Scheduled 'reset_daily_rate_limits' job for 00:00 UTC daily.")
+    # scheduler.add_job(reset_daily_rate_limits, 'cron', hour=0, minute=0, misfire_grace_time=None)
+    # logging.info("Scheduled 'reset_daily_rate_limits' job for 00:00 UTC daily.")
 
-    # Schedule the email sending job to run every day at 1:00 AM UTC
-    # (an hour after rate limit reset, adjust as needed)
-    scheduler.add_job(send_scheduled_emails, 'cron', hour=1, minute=0, misfire_grace_time=None)
-    logging.info("Scheduled 'send_scheduled_emails' job for 01:00 UTC daily.")
+    # Schedule the email sending job to run every Tuesday at 9:00 AM UTC
+    scheduler.add_job(send_scheduled_emails, 'cron', day_of_week='tue', hour=9, minute=0, misfire_grace_time=None)
+    logging.info("Scheduled 'send_scheduled_emails' job for Tuesdays at 09:00 UTC.")
 
     logging.info("Scheduler started. Waiting for jobs to run... Press Ctrl+C to exit.")
     try:
