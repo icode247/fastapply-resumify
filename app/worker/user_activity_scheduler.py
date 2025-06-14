@@ -152,10 +152,15 @@ if __name__ == "__main__":
     # logging.info("Scheduled 'reset_daily_rate_limits' job for 00:00 UTC daily.")
 
     # Schedule the email sending job to run every Tuesday at 9:00 AM UTC
-    scheduler.add_job(send_scheduled_emails, 'cron', day_of_week='tue', hour=9, minute=0, misfire_grace_time=None)
-    logging.info("Scheduled 'send_scheduled_emails' job for Tuesdays at 09:00 UTC.")
+    # scheduler.add_job(send_scheduled_emails, 'cron', day_of_week='tue', hour=9, minute=0, misfire_grace_time=None)
+    # logging.info("Scheduled 'send_scheduled_emails' job for Tuesdays at 09:00 UTC.")
 
-    logging.info("Scheduler started. Waiting for jobs to run... Press Ctrl+C to exit.")
+    # logging.info("Scheduler started. Waiting for jobs to run... Press Ctrl+C to exit.")
+     # Schedule the email sending job to run every 5 seconds
+    scheduler.add_job(send_scheduled_emails, 'interval', seconds=5, misfire_grace_time=None)
+    logging.info("Scheduled 'send_scheduled_emails' job for every 5 seconds.")
+
+    logging.info("Scheduler started. Jobs will run every 5 seconds... Press Ctrl+C to exit.")
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):

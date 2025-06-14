@@ -7,10 +7,10 @@ SCENARIO_INACTIVE_1_OR_2_APPS = "inactive_1_or_2_apps"
 SCENARIO_NO_APPS_AFTER_SIGNUP = "no_apps_after_signup"
 
 EMAIL_TEMPLATES = {
-    SCENARIO_COMPLETED_3_APPLICATIONS: {
+     SCENARIO_COMPLETED_3_APPLICATIONS: {
         "subject": "You're on a Roll! What's Next After 3 Applications?",
         "body": textwrap.dedent("""\
-            Hi [User Name/there],
+            Hi there,
 
             Wow, you've already submitted 3 applications using our platform! That's fantastic momentum.
 
@@ -20,44 +20,47 @@ EMAIL_TEMPLATES = {
             Keep up the great work!
 
             Best regards,
-            The [PlatformName] Team
+            The FastApply Team
             """)
     },
+    
     SCENARIO_INACTIVE_1_OR_2_APPS: {
         "subject": "Still Thinking About That Next Application?",
         "body": textwrap.dedent("""\
-            Hi [User Name/there],
+            Hi there,
 
-            We noticed you've started strong by submitting [Number of Applications] application(s)!
+            We noticed you've started strong by submitting 1 or 2 application(s)!
 
             Completing more applications can significantly boost your visibility to employers. Our platform makes it easy to tailor your resume and apply quickly.
 
-            Need a little help or inspiration? Check out [Link to resources/blog] or simply log back in to continue.
+            Need a little help or inspiration? Check out https://blog.fastapply.co or simply log back in to continue.
 
             Ready to apply for more? Our yearly subscription gives you unlimited applications, or you can purchase additional credits.
 
             Best,
-            The [PlatformName] Team
+            The FastApply Team
             """)
     },
+    
     SCENARIO_NO_APPS_AFTER_SIGNUP: {
         "subject": "Ready to Land Your Dream Job? Start Your First Application!",
         "body": textwrap.dedent("""\
-            Hi [User Name/there],
+            Hi there,
 
-            Welcome again to [PlatformName]! We're excited to help you streamline your job application process.
+            Welcome again to FastApply! We're excited to help you streamline your job application process.
 
             Getting started is easy. Just upload your resume, find a job you're interested in, and let us help you tailor your application. Your first 3 applications are on us!
 
-            Don't let your dream job wait. Log in now and make your first application: [Link to Login/Platform]
+            Don't let your dream job wait. Log in now and make your first application: https://fastapply.co
 
             Good luck!
 
             Sincerely,
-            The [PlatformName] Team
+            The FastApply Team
             """)
     }
-}
+    
+    }
 
 if __name__ == '__main__':
     # Example of how to access and print a template
