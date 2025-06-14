@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Environment variables for API endpoints - CORRECTED URLS
 API_HOST = os.environ.get('API_HOST', 'http://localhost:3000')
-INTERNAL_USERS_API_URL = API_HOST + '/api/users/search'
+INTERNAL_USERS_API_URL = API_HOST + '/api/user/search'
 INTERNAL_APPLICATIONS_API_URL_TEMPLATE = API_HOST + '/api/applications/user/{user_id}'
 NEW_USER_DAYS_THRESHOLD = int(os.environ.get('NEW_USER_DAYS_THRESHOLD', "7"))
 

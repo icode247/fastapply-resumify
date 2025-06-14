@@ -17,7 +17,7 @@ class InterviewAnswerGenerator:
     """
     
     def __init__(self):
-        self.api_key = os.environ.get("OPENAI_API_KEY", "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")
+        self.api_key = os.environ.get("OPENAI_API_KEY", "")
         self.logger = logging.getLogger(__name__)
         
         # Top companies data for contextual answers
