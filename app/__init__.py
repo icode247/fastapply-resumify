@@ -60,6 +60,8 @@ def create_app(config_object=None):
     from app.api.linkedin_headline import bp as linkedin_headline_bp
     from app.api.linkedin_hashtags import bp as linkedin_hashtags_bp
     from app.api.interview import bp as interview_bp
+    from app.api.intelligent_parse import bp as intelligent_parse_bp
+
 
     app.register_blueprint(upload_bp, url_prefix='/api')
     app.register_blueprint(match_bp, url_prefix='/api')
@@ -75,6 +77,7 @@ def create_app(config_object=None):
     app.register_blueprint(linkedin_headline_bp, url_prefix='/api')
     app.register_blueprint(linkedin_hashtags_bp, url_prefix='/api')
     app.register_blueprint(interview_bp, url_prefix='/api')  
+    app.register_blueprint(intelligent_parse_bp, url_prefix='/api')
 
     # Health check endpoint
     @app.route('/health', methods=['GET'])
@@ -132,5 +135,4 @@ def create_app(config_object=None):
         return jsonify({"error": "Rate limit exceeded"}), 429
 
     return app
-
 
