@@ -249,7 +249,7 @@ class ATSResumeProcessor:
         Provide the output as a valid JSON string without additional text or comments.
         """
             client = OpenAI(
-                api_key=self.api_token,
+                api_key=self.api_key,
             )
 
             chat_completion = client.chat.completions.create(
