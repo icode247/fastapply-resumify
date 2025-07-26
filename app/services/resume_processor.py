@@ -1,4 +1,3 @@
-
 """
 Resume processing and optimization using external AI services.
 """
@@ -17,9 +16,13 @@ class ATSResumeProcessor:
     Process and generate ATS-optimized resumes based on user data and job descriptions.
     """
     
-    def __init__(self, api_token):
-        self.api_key = os.environ.get("OPENAI_API_KEY",  "")
+    def __init__(self, api_token=None):
+        # Fix: Use consistent attribute naming and handle both parameter and environment variable
+        self.api_key = api_token or os.environ.get("OPENAI_API_KEY", "")
         self.logger = logging.getLogger(__name__)
+        # Validate API key
+        if not self.api_key:
+            raise ValueError("OpenAI API key is required. Provide it as parameter or set OPENAI_API_KEY environment variable.")
         
     def extract_resume_sections(self, resume_text: str) -> Dict[str, Any]:
         """
@@ -157,7 +160,7 @@ class ATSResumeProcessor:
     
     def optimize_resume_for_ats_pdf(self, resume_text, job_description: str, user_data: Any) -> Dict[str, Any]:
         """
-        Optimize resume data for ATS based on job description using HuggingFace API
+        Optimize resume data for ATS based on job description using OpenAI API
         """
         try:
             # Solution 1: Escape all curly braces in the JSON template
@@ -178,7 +181,7 @@ class ATSResumeProcessor:
           ```
           {user_data}
           ```
-        - Reword experience descriptions to incoporate all relevant keywords from job description.                    
+        - Reword experience descriptions to incorporate all relevant keywords from job description.                    
         - Title field must match the job title in job description
         - All the fields here are important to render the resume. So we must not miss any of them in the output.
         - Structure the output this JSON format:
@@ -245,11 +248,11 @@ class ATSResumeProcessor:
         - Return the enhanced resume data as a JSON string matching the exact structure of the template above.
         - Calculate the ATS match score and include it as matchScore.
         - If you do not find any detail is better to leave empty than N/A.
-        - Add as many expriences, projects,
+        - Add as many experiences, projects,
         Provide the output as a valid JSON string without additional text or comments.
         """
             client = OpenAI(
-                api_key=self.api_key,
+                api_key=self.api_key,  # Fix: Use self.api_key instead of self.api_key
             )
 
             chat_completion = client.chat.completions.create(
@@ -264,13 +267,11 @@ class ATSResumeProcessor:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature= 0.4,
+                temperature=0.4,
             )
-            result= chat_completion.choices[0].message.content
+            result = chat_completion.choices[0].message.content
             try:
                 optimized_data = json.loads(result)
-                
-              
                 return optimized_data
 
             except json.JSONDecodeError:
@@ -279,19 +280,17 @@ class ATSResumeProcessor:
                     optimized_data_str = json_match.group(0)
                     try:
                         optimized_data = json.loads(optimized_data_str)
-                        
-                        
                         return optimized_data
                     except json.JSONDecodeError:
                         raise ValueError("Extracted content is not valid JSON")
                 else:
                     raise ValueError("No valid JSON found in the API response")
         except Exception as e:
-                        raise ValueError(f"Error generatiin ${e}")
+            raise ValueError(f"Error generating resume: {e}")
     
     def optimize_resume_for_ats(self, resume_text, job_description: str) -> Dict[str, Any]:
         """
-        Optimize resume data for ATS based on job description using HuggingFace API
+        Optimize resume data for ATS based on job description using OpenAI API
         """
         try:
             prompt = f"""
@@ -381,7 +380,7 @@ class ATSResumeProcessor:
                     """
             
             client = OpenAI(
-                api_key=self.api_token,
+                api_key=self.api_key,
             )
 
             chat_completion = client.chat.completions.create(
@@ -396,13 +395,11 @@ class ATSResumeProcessor:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature= 0.7,
+                temperature=0.7,
             )
-            result= chat_completion.choices[0].message.content
+            result = chat_completion.choices[0].message.content
             try:
                 optimized_data = json.loads(result)
-                
-                
                 return optimized_data
 
             except json.JSONDecodeError:
@@ -411,14 +408,13 @@ class ATSResumeProcessor:
                     optimized_data_str = json_match.group(0)
                     try:
                         optimized_data = json.loads(optimized_data_str)
-                        
                         return optimized_data
                     except json.JSONDecodeError:
                         raise ValueError("Extracted content is not valid JSON")
                 else:
                     raise ValueError("No valid JSON found in the API response")
         except Exception as e:
-                        raise ValueError(f"Error generatiin ${e}")
+            raise ValueError(f"Error generating resume: {e}")
    
     def process_resume(self, resume_text: str, job_description: str) -> Dict[str, Any]:
         """
@@ -437,4 +433,3 @@ class ATSResumeProcessor:
         optimized_data = self.optimize_resume_for_ats_pdf(resume_text, job_description, user_data)
         
         return optimized_data
-

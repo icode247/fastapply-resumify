@@ -16,7 +16,7 @@ def enhance_with_huggingface(user_data: dict, job_description: str, max_retries:
     Enhanced version with retry logic and better error handling
     """
     # Get API token from environment or use default
-    api_token = os.environ.get("HUGGINGFACE_API_TOKEN", "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")
+    api_token = os.environ.get("HUGGINGFACE_API_TOKEN", "")
     logger = logging.getLogger(__name__)
     
     for attempt in range(max_retries):

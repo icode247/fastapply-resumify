@@ -5,13 +5,13 @@ from flask import Blueprint, request, jsonify
 import logging
 from app.utils.redis_cache import cache_response
 from app.services.resume_processor import ATSResumeProcessor
-
+import os
 # Create blueprint
 bp = Blueprint('optimize', __name__)
 logger = logging.getLogger(__name__)
-
+api_token = os.environ.get("OPENAI_API_KEY", "")
 # Initialize resume processor
-resume_processor = ATSResumeProcessor(api_token="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")
+resume_processor = ATSResumeProcessor(api_token)
 
 @bp.route('/optimize-resume', methods=['POST'])
 @cache_response(expiration=7200)  # Cache for 2 hours
