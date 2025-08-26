@@ -22,7 +22,7 @@ def create_app(config_object=None):
         app.config.from_object(config_object)
 
     # Setup CORS
-    CORS(app, resources={r"/api/*": {"origins": ["*"]}})
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Configure logging
     logging.basicConfig(
