@@ -39,7 +39,6 @@ def intelligent_parse_resume():
         # Step 1: Extract text from resume file
         logger.info(f"Extracting text from resume: {file_url[:50]}...")
         parse_result = parse_resume_from_firebase(file_url)
-        print(parse_result)
         
         if not parse_result.get('success'):
             logger.error(f"Failed to extract text from resume: {parse_result.get('error')}")
