@@ -21,12 +21,11 @@ intelligent_parser = IntelligentResumeParser()
 @cache_response(expiration=3600)  # Cache for 1 hour
 def intelligent_parse_resume():
     """
-    Intelligently parse resume and optionally merge with LinkedIn data
+    Intelligently parse resume from file
     
     Expected payload:
     {
-        "file_url": "Firebase URL to resume file",
-        "linkedin_data": {...} // Optional LinkedIn data to merge
+        "file_url": "Firebase URL to resume file"
     }
     """
     try:
@@ -36,7 +35,6 @@ def intelligent_parse_resume():
             return jsonify({"error": "No file URL provided"}), 400
                 
         file_url = data['file_url']
-        linkedin_data = data.get('linkedin_data', None)
         
         # Step 1: Extract text from resume file
         logger.info(f"Extracting text from resume: {file_url[:50]}...")
@@ -58,12 +56,12 @@ def intelligent_parse_resume():
                 "error": "No valid text could be extracted from the resume"
             }), 400
         
-        # Step 2: Parse resume into structured data and merge with LinkedIn
+        # Step 2: Parse resume into structured data
         logger.info("Parsing resume into structured data...")
-        result = intelligent_parser.parse_and_merge(resume_text, linkedin_data)
+        result = intelligent_parser.parse_resume_to_structured_data(resume_text)
         
         if result.get('success'):
-            logger.info("Successfully parsed and merged resume data")
+            logger.info("Successfully parsed resume data")
             return jsonify({
                 "success": True,
                 "data": result,
@@ -93,8 +91,7 @@ def parse_resume_text():
     
     Expected payload:
     {
-        "resume_text": "Raw resume text",
-        "linkedin_data": {...} // Optional LinkedIn data to merge
+        "resume_text": "Raw resume text"
     }
     """
     try:
@@ -104,7 +101,6 @@ def parse_resume_text():
             return jsonify({"error": "No resume text provided"}), 400
                 
         resume_text = data['resume_text']
-        linkedin_data = data.get('linkedin_data', None)
         
         if not resume_text or not validate_input(resume_text):
             return jsonify({
@@ -112,9 +108,9 @@ def parse_resume_text():
                 "error": "Resume text is too short or invalid"
             }), 400
         
-        # Parse resume into structured data and merge with LinkedIn
+        # Parse resume into structured data
         logger.info("Parsing resume text into structured data...")
-        result = intelligent_parser.parse_and_merge(resume_text, linkedin_data)
+        result = intelligent_parser.parse_resume_to_structured_data(resume_text)
         
         if result.get('success'):
             logger.info("Successfully parsed resume text")
@@ -161,9 +157,9 @@ def merge_resume_linkedin_data():
         if not resume_data:
             return jsonify({"error": "resume_data is required"}), 400
         
-        # Merge the data
-        logger.info("Merging resume and LinkedIn data...")
-        result = intelligent_parser.merge_with_linkedin_data(resume_data, linkedin_data)
+        # Parse the resume data (no merging needed)
+        logger.info("Processing resume data...")
+        result = intelligent_parser.parse_resume_to_structured_data(str(resume_data))
         
         if result.get('success'):
             logger.info("Successfully merged data")

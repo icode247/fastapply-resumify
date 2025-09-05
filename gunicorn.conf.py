@@ -6,7 +6,7 @@ bind = f"0.0.0.0:{port}"
 workers = 1
 worker_class = "sync"
 worker_connections = 1000
-timeout = 30
+timeout = 60  # Increased timeout for AI processing
 keepalive = 2
 
 # Log settings
