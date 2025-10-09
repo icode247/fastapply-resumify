@@ -5,9 +5,11 @@ import io
 from app.constants import FULL_COLUMN_WIDTH
 from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element
 from app.utils.sections.resume_section import Section
-from app.constants.resume_constants import RESUME_ELEMENTS_ORDER, NAME_PARAGRAPH_STYLE, CONTACT_PARAGRAPH_STYLE
+from app.constants.resume_constants import ATS_RESUME_ELEMENTS_ORDER, NAME_PARAGRAPH_STYLE, CONTACT_PARAGRAPH_STYLE, SECTION_PARAGRAPH_STYLE
+from app.utils.resume_summary import generate_professional_summary
 from reportlab.lib.pagesizes import A4, letter
 from reportlab.lib.units import inch
+from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 
 def generate_resume(output_file_path, author, elements, table_styles) -> None:
@@ -195,19 +197,19 @@ def generate_resume_pdf(author, resume_data):
     # Process each section of the resume
     processed_resume_data = {}
     
-    # Process education data
-    education_elements = []
-    if 'education' in resume_data:
-        for element in resume_data['education']:
-            education_elements.append(get_education_element(element))
-    processed_resume_data['education'] = Section('Education', education_elements)
-    
     # Process experience data
     experience_elements = []
     if 'experience' in resume_data:
         for element in resume_data['experience']:
             experience_elements.append(get_experience_element(element))
-    processed_resume_data['experience'] = Section('Experience', experience_elements)
+    processed_resume_data['experience'] = Section('EXPERIENCE', experience_elements)
+    
+    # Process education data
+    education_elements = []
+    if 'education' in resume_data:
+        for element in resume_data['education']:
+            education_elements.append(get_education_element(element))
+    processed_resume_data['education'] = Section('EDUCATION', education_elements)
     
     # Process projects data
     project_elements = []
@@ -215,7 +217,7 @@ def generate_resume_pdf(author, resume_data):
         for element in resume_data['projects']:
             project_elements.append(get_project_element(element))
         # Only add projects section if there are actual projects
-        processed_resume_data['projects'] = Section('Projects', project_elements)
+        processed_resume_data['projects'] = Section('PROJECTS', project_elements)
     
     # Process skills data - Handle both dictionary and list formats
     skill_elements = []
@@ -274,8 +276,30 @@ def generate_resume_pdf(author, resume_data):
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
     running_row_index[0] += 1
     
-    # Add each section to the table
-    for element in RESUME_ELEMENTS_ORDER:
+    # Add Professional Summary
+    summary_text = generate_professional_summary(resume_data, job_title)
+    if summary_text:
+        # Add summary section header
+        table.append([
+            Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE)
+        ])
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
+        table_styles.append(('LINEBELOW', (0, running_row_index[0]), (-1, running_row_index[0]), 1, colors.black))
+        table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
+        running_row_index[0] += 1
+        
+        # Add summary content
+        table.append([
+            Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE)
+        ])
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 8))
+        table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
+        running_row_index[0] += 1
+    
+    # Add each section to the table in ATS-optimized order
+    for element in ATS_RESUME_ELEMENTS_ORDER:
         if element in processed_resume_data:
             section_table = processed_resume_data[element].get_section_table(running_row_index, table_styles)
             for entry in section_table:

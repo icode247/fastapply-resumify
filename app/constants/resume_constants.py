@@ -12,6 +12,16 @@ RESUME_ELEMENTS_ORDER = [
     'certifications'
 ]
 
+# ATS-optimized section order (Professional Summary added separately in generator)
+ATS_RESUME_ELEMENTS_ORDER = [
+    'experience',
+    'skills',
+    'education',
+    'projects',
+    'achievements',
+    'certifications'
+]
+
 JOB_DETAILS_PARAGRAPH_STYLE = ParagraphStyle('job_details_paragraph', leftIndent=12, fontName = GARAMOND_REGULAR, fontSize = 11, leading = 12.5, alignment = TA_JUSTIFY)
 NAME_PARAGRAPH_STYLE = ParagraphStyle('name_paragraph', fontName = GARAMOND_SEMIBOLD, fontSize=16)
 CONTACT_PARAGRAPH_STYLE = ParagraphStyle('contact_paragraph', fontName = GARAMOND_REGULAR, fontSize=12)

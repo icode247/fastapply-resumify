@@ -300,3 +300,155 @@ class ResumeScorer:
         """
         
         return prompt
+    
+    def check_ats_compatibility(self, resume_text: str, format_type: str = "docx") -> Dict[str, Any]:
+        """
+        Check ATS compatibility of a resume
+        
+        Args:
+            resume_text: Text content of the resume
+            format_type: File format (pdf or docx)
+            
+        Returns:
+            Dictionary containing ATS compatibility analysis
+        """
+        try:
+            # Create ATS-specific scoring prompt
+            prompt = self._create_ats_compatibility_prompt(resume_text, format_type)
+            
+            # Call OpenAI API
+            client = OpenAI(api_key=self.api_key)
+            
+            self.logger.info(f"Checking ATS compatibility for {format_type.upper()} resume")
+            
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """You are an expert ATS (Applicant Tracking System) analyzer specializing in 2025 ATS requirements. 
+                        Your job is to evaluate resumes specifically for ATS compatibility, focusing on format, structure, 
+                        keywords, and parsing optimization."""
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                model="gpt-4o-mini",
+                temperature=0.2,
+                response_format={"type": "json_object"},
+            )
+            
+            result = chat_completion.choices[0].message.content
+            
+            try:
+                ats_result = json.loads(result)
+                ats_result["success"] = True
+                return ats_result
+                
+            except json.JSONDecodeError:
+                # Try to extract JSON if the response isn't properly formatted
+                json_match = re.search(r'\{.*\}', result, re.DOTALL)
+                if json_match:
+                    ats_result_str = json_match.group(0)
+                    try:
+                        ats_result = json.loads(ats_result_str)
+                        ats_result["success"] = True
+                        return ats_result
+                    except json.JSONDecodeError:
+                        raise ValueError("Failed to parse ATS compatibility response as JSON")
+                else:
+                    raise ValueError("No valid JSON found in ATS compatibility response")
+                    
+        except Exception as e:
+            self.logger.error(f"Error checking ATS compatibility: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def _create_ats_compatibility_prompt(self, resume_text: str, format_type: str) -> str:
+        """Create prompt for ATS compatibility analysis"""
+        prompt = f"""
+        Analyze the following resume specifically for ATS (Applicant Tracking System) compatibility in 2025.
+        File format: {format_type.upper()}
+        
+        RESUME TEXT:
+        ```
+        {resume_text}
+        ```
+        
+        Evaluate the resume against these critical ATS criteria:
+        
+        1. **Format Compatibility** (Weight: 25%)
+           - File format suitability (.docx preferred over PDF)
+           - Simple layout without complex formatting
+           - Standard fonts and readable structure
+           
+        2. **Section Structure** (Weight: 20%)
+           - Standard section headers (Professional Experience, Education, Skills, etc.)
+           - Logical section order (Contact → Summary → Experience → Skills → Education)
+           - Professional Summary presence and quality
+           
+        3. **Keyword Optimization** (Weight: 25%)
+           - Relevant industry keywords
+           - Job title and skills mentioned appropriately
+           - Keyword density (2-3 mentions optimal)
+           - Both acronym and full-form versions of technical terms
+           
+        4. **Content Structure** (Weight: 15%)
+           - Clear contact information (not in header/footer)
+           - Quantified achievements with metrics
+           - Action verbs and impactful language
+           - Proper date formatting
+           
+        5. **ATS Parsing** (Weight: 15%)
+           - No complex tables, graphics, or images
+           - Single-column layout
+           - Standard bullet points
+           - Consistent formatting
+        
+        Return your analysis in this JSON format:
+        {{
+          "overallATSScore": number (0-100),
+          "formatCompatibility": {{
+            "score": number (0-100),
+            "issues": ["specific issue 1", "specific issue 2"],
+            "recommendations": ["specific recommendation 1", "specific recommendation 2"]
+          }},
+          "sectionStructure": {{
+            "score": number (0-100),
+            "missingSections": ["section name 1", "section name 2"],
+            "incorrectOrder": boolean,
+            "recommendations": ["specific recommendation 1", "specific recommendation 2"]
+          }},
+          "keywordOptimization": {{
+            "score": number (0-100),
+            "keywordDensity": "low/medium/high",
+            "missingKeywords": ["keyword 1", "keyword 2"],
+            "recommendations": ["specific recommendation 1", "specific recommendation 2"]
+          }},
+          "contentStructure": {{
+            "score": number (0-100),
+            "hasContactInfo": boolean,
+            "hasQuantifiedAchievements": boolean,
+            "recommendations": ["specific recommendation 1", "specific recommendation 2"]
+          }},
+          "parsingOptimization": {{
+            "score": number (0-100),
+            "hasComplexFormatting": boolean,
+            "hasGraphics": boolean,
+            "recommendations": ["specific recommendation 1", "specific recommendation 2"]
+          }},
+          "topPriorities": [
+            "Most critical improvement 1",
+            "Most critical improvement 2",
+            "Most critical improvement 3"
+          ],
+          "atsCompatibilityLevel": "Poor (0-60)" or "Good (61-80)" or "Excellent (81-100)"
+        }}
+        
+        Focus on actionable, specific feedback that will improve ATS parsing and keyword matching.
+        """
+        
+        return prompt

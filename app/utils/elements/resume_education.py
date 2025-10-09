@@ -1,5 +1,6 @@
 from reportlab.platypus import Paragraph
 from app.constants.resume_constants import COMPANY_HEADING_PARAGRAPH_STYLE, COMPANY_DURATION_PARAGRAPH_STYLE, COMPANY_TITLE_PARAGRAPH_STYLE, COMPANY_LOCATION_PARAGRAPH_STYLE, JOB_DETAILS_PARAGRAPH_STYLE
+from docx.shared import Pt
 
 class Education:
     def __init__(self, institution='', course='', location='', start_date='', end_date='') -> None:
@@ -41,3 +42,32 @@ class Education:
         running_row_index[0] += 1
         
         return education_table
+    
+    def get_docx_content(self, doc):
+        """Add education content to DOCX document"""
+        # Institution and dates
+        institution_paragraph = doc.add_paragraph()
+        institution_run = institution_paragraph.add_run(self.institution)
+        institution_run.font.size = Pt(11)
+        institution_run.font.bold = True
+        institution_run.font.name = 'Calibri'
+        
+        if self.start_date or self.end_date:
+            dates_run = institution_paragraph.add_run(f"\t{self.start_date} - {self.end_date}")
+            dates_run.font.size = Pt(11)
+            dates_run.font.name = 'Calibri'
+        
+        # Course/Degree and location
+        course_paragraph = doc.add_paragraph()
+        course_run = course_paragraph.add_run(self.course)
+        course_run.font.size = Pt(11)
+        course_run.font.italic = True
+        course_run.font.name = 'Calibri'
+        
+        if self.location:
+            location_run = course_paragraph.add_run(f"\t{self.location}")
+            location_run.font.size = Pt(11)
+            location_run.font.name = 'Calibri'
+        
+        # Add space after education
+        doc.add_paragraph()
