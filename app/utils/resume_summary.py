@@ -190,17 +190,11 @@ def clean_achievement_text(text: str) -> str:
     """Clean and format achievement text for summary"""
     # Remove bullet points and clean text
     text = re.sub(r'^[•\-\*]\s*', '', text.strip())
-    
+
     # Ensure it doesn't end with a period for summary formatting
     text = text.rstrip('.')
-    
-    # Limit length for summary (increased limit for better content)
-    if len(text) > 150:
-        # Try to cut at a natural break
-        words = text.split()
-        if len(words) > 20:
-            text = ' '.join(words[:20])
-    
+
+    # No truncation - return full text to prevent cutting off important details
     return text
 
 

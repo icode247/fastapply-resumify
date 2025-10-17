@@ -58,7 +58,17 @@ class CoverLetterGenerator:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert career coach who writes compelling, personalized, and professional cover letters that help candidates stand out."
+                        "content": """You are an expert career coach who writes compelling, authentic cover letters that sound 100% human-written. Your cover letters:
+- Pass ALL AI detection tools (GPTZero, Originality.ai, etc.) as 100% human-written
+- Sound like the candidate wrote it themselves - natural, confident, direct
+- Use varied sentence structures and authentic human phrasing
+- Show genuine enthusiasm without sounding desperate or robotic
+- Connect real experiences to job requirements in a natural way
+- Avoid all AI-generated phrases and clichés
+- Write brief, punchy, impactful sentences
+- Focus on specific achievements and concrete examples
+- Sound professional but conversational, not stiff or formulaic
+Your goal: Create cover letters that hiring managers believe the candidate wrote themselves."""
                     },
                     {
                         "role": "user",
@@ -66,7 +76,7 @@ class CoverLetterGenerator:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature=0.6,
+                temperature=0.85,
                 response_format={"type": "json_object"},
             )
             
@@ -129,44 +139,56 @@ class CoverLetterGenerator:
         job_description = letter_data.get('jobDescription', '')
         
         prompt = f"""
-        Generate a highly personalized and professional cover letter in JSON format based on the following information:
-        
+        Generate a 100% HUMAN-SOUNDING, 2025 ATS-friendly cover letter that will pass ALL AI detection tools. This MUST sound like the candidate wrote it themselves.
+
+        ANTI-AI DETECTION REQUIREMENTS (CRITICAL):
+        - Write like a real person telling their story - natural, varied, authentic
+        - Use contractions occasionally (I'm, I've, they're) to sound human
+        - Vary sentence length dramatically (some 5 words, some 20+ words)
+        - Show personality and genuine enthusiasm without sounding robotic
+        - Use specific numbers, company names, and concrete examples
+        - Write how people actually talk, not how AI writes
+        - No formulaic openings like "I am writing to express my interest"
+        - Start strong with something attention-grabbing and human
+        - Sound confident but not arrogant, enthusiastic but not desperate
+
         APPLICANT INFORMATION:
         - Full Name: {letter_data.get('fullName', '')}
-        - Tone: {tone}
-        
+        - Desired Tone: {tone} (but keep it genuinely human)
+
         JOB DESCRIPTION TO ANALYZE:
         ```
         {job_description}
         ```
-        
+
         {work_experience}
-        
+
         {skills_section}
         {education_section}
-        
+
         INSTRUCTIONS:
         1. ANALYZE the job description to extract:
-        - Company name
-        - Job title/position
-        - Key requirements and responsibilities
-        - Required skills and technologies
+        - Company name (use the EXACT name)
+        - Job title/position (use the EXACT title)
+        - Key requirements and must-have skills
+        - Company culture indicators
+
+        2. CREATE a compelling cover letter that:
+        - Opens with something memorable and human (NOT "I am writing to...")
+        - Uses SPECIFIC examples from their actual work experience with real company names
+        - Connects past achievements to job requirements naturally
+        - Shows enthusiasm for THIS specific company and role
+        - Mentions 2-3 concrete accomplishments with numbers
+        - Demonstrates understanding of the role's challenges
         
-        2. CREATE a compelling, personalized cover letter that:
-        - Uses SPECIFIC examples from the candidate's actual work experience
-        - Connects their past roles and companies to the job requirements
-        - Mentions relevant skills that match the job description
-        - Shows how their progression (internships to full-time) aligns with the role
-        - Addresses the specific company and position from the job description
-        
-        3. STRUCTURE:
+        3. STRUCTURE (250-350 words TOTAL - keep it concise):
         - Date: {current_date}
-        - Salutation: "Dear Hiring Manager,"
-        - Opening: Strong introduction mentioning the specific position and company from job description
-        - Body Paragraph 1: Highlight most relevant work experience with specific examples
-        - Body Paragraph 2: Connect additional experience/skills to the job requirements
-        - Closing: Express enthusiasm and request interview
-        - Signature: Professional closing
+        - Salutation: "Dear Hiring Manager," (or use hiring manager name if found in job description)
+        - Opening (2-3 sentences): Hook them immediately - why you're excited about THIS role at THIS company
+        - Body Paragraph 1 (3-4 sentences): Most relevant achievement with specific numbers and impact
+        - Body Paragraph 2 (3-4 sentences): Another achievement that connects to their needs
+        - Closing (2-3 sentences): Forward-looking statement about contribution + call to action
+        - Signature: "Sincerely," or "Best regards," then name
         
         Return the output as a valid JSON string with this exact structure:
         {{
@@ -182,14 +204,22 @@ class CoverLetterGenerator:
         "fullLetter": "Complete formatted cover letter combining all sections"
         }}
         
-        IMPORTANT: 
-        - Extract the EXACT company name and job title from the job description
-        - Use REAL company names from their experience (like {', '.join([pos.get('company', '') for pos in letter_data.get('fullPositions', [])[:3]])})
-        - Be specific about what they accomplished at each role
-        - Match their skills to the job requirements
-        - Keep it {tone.lower()} in tone
-        - Keep it focused and concise (300-400 words total)
-        - Don't make up experience they don't have
+        CRITICAL REQUIREMENTS:
+        - Extract EXACT company name and job title from job description - use them multiple times
+        - Reference their ACTUAL companies: {', '.join([pos.get('company', '') for pos in letter_data.get('fullPositions', [])[:3]])}
+        - Include specific numbers and metrics from their experience
+        - Write in a way that passes AI detection as 100% human
+        - Keep total length 250-350 words (recruiters are busy!)
+        - Use ONLY verified experience - NO fabrication
+        - Sound genuinely excited about the opportunity
+        - End with confidence, not desperation
+
+        OPENING EXAMPLES (use similar natural style):
+        ❌ BAD (robotic): "I am writing to express my interest in the Software Engineer position..."
+        ✓ GOOD (human): "When I saw [Company]'s opening for a [Job Title], I knew I had to apply. Over the past [X] years at [Their Company], I've..."
+
+        ❌ BAD (generic): "I believe I would be a great fit for this role..."
+        ✓ GOOD (specific): "I've spent the last two years building scalable APIs that handle 10M+ requests daily. That's exactly what [Company] needs..."
 
         FOLLOW THESE RULES
         SHOULD

@@ -6,7 +6,6 @@ from app.constants import FULL_COLUMN_WIDTH
 from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element
 from app.utils.sections.resume_section import Section
 from app.constants.resume_constants import ATS_RESUME_ELEMENTS_ORDER, NAME_PARAGRAPH_STYLE, CONTACT_PARAGRAPH_STYLE, SECTION_PARAGRAPH_STYLE
-from app.utils.resume_summary import generate_professional_summary
 from reportlab.lib.pagesizes import A4, letter
 from reportlab.lib.units import inch
 from reportlab.lib import colors
@@ -253,31 +252,34 @@ def generate_resume_pdf(author, resume_data):
     
     processed_resume_data['skills'] = Section('Skills', skill_elements)
     
-    # Add the name to the table
+    # Add the name to the table (span both columns for full width)
     table.append([
-        Paragraph(author, NAME_PARAGRAPH_STYLE)
+        Paragraph(author, NAME_PARAGRAPH_STYLE), ''
     ])
+    table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
     running_row_index[0] += 1
-    
-    # If job title exists, add it on the next line with appropriate spacing
+
+    # If job title exists, add it on the next line with appropriate spacing (span both columns)
     if job_title:
         table.append([
-            Paragraph(job_title, CONTACT_PARAGRAPH_STYLE)
+            Paragraph(job_title, CONTACT_PARAGRAPH_STYLE), ''
         ])
+        table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         # Set padding between name and title to create proper separation
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]-1), (1, running_row_index[0]-1), 4))
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
         running_row_index[0] += 1
-    
-    # Add contact information
+
+    # Add contact information (span both columns for full width)
     table.append([
-        Paragraph(f"{email} | {phone} | {address}", CONTACT_PARAGRAPH_STYLE),
+        Paragraph(f"{email} | {phone} | {address}", CONTACT_PARAGRAPH_STYLE), ''
     ])
+    table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
     running_row_index[0] += 1
-    
-    # Add Professional Summary
-    summary_text = generate_professional_summary(resume_data, job_title)
+
+    # Add Professional Summary (use the one from resume_data if available)
+    summary_text = resume_data.get('summary', '')
     if summary_text:
         # Add summary section header
         table.append([

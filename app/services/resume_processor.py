@@ -165,26 +165,81 @@ class ATSResumeProcessor:
         try:
             # Solution 1: Escape all curly braces in the JSON template
             prompt = f"""
-        Generate a 100% ATS-friendly resume data optimized for this exact job description below. Follow these instructions strictly to avoid hallucination:
-        - You must not hallucinate.
+        Generate a COMPLETE, 100% ATS-friendly resume for 2025 that reads naturally and authentically human. This resume MUST pass AI detection tools and feel completely human-written. Follow these critical instructions:
 
-        - Extract all details (e.g., experience, skills, education, certifications) from the provided resume text: 
+        ANTI-AI DETECTION REQUIREMENTS (2025):
+        - Write in a natural, conversational professional tone with varied sentence structures
+        - Use authentic human phrasing - avoid robotic patterns like "leveraged", "spearheaded" repeatedly
+        - Include specific, concrete details and numbers that feel real and contextual
+        - Vary bullet point lengths and structures naturally (some short, some detailed)
+        - Use natural transitions and flow - not formulaic templates
+        - Add personality through word choice while maintaining professionalism
+        - NO generic corporate buzzwords unless genuinely necessary
+        - Write like a real person describing their actual work experience
+
+        FORBIDDEN WORDS (NEVER USE THESE - they sound AI-generated):
+        can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving, dedicated, passionate, results-driven, leverage, solid foundation
+
+        SOURCE DATA - MUST NOT HALLUCINATE:
+        - Extract ALL details from the provided resume text:
           ```
           {resume_text}
           ```
-        - Optimize the resume to match the job description: 
+        - Optimize to match this job description (use its keywords naturally):
           ```
           {job_description}
           ```
-        
-        - Get more projects, other fullPositions, education etc from this data to enrich resume: 
+        - Enrich with additional verified information from user data:
           ```
           {user_data}
           ```
-        - Reword experience descriptions to incorporate all relevant keywords from job description.                    
-        - Title field must match the job title in job description
-        - All the fields here are important to render the resume. So we must not miss any of them in the output.
-        - Structure the output this JSON format:
+
+        PROFESSIONAL SUMMARY REQUIREMENTS:
+        - Generate a COMPLETE professional summary (3-4 sentences, 70-90 words)
+        - MUST include these 4 elements in order:
+          1. Job title + years of experience + what you do/achieve
+          2. Core expertise and specializations
+          3. Tools/technologies + quantifiable results/impact
+          4. Soft skills + additional capabilities (leadership, budgets, teams, etc.)
+        - Make it 100% ATS-optimized with keywords from job description
+        - Write like a real person would describe themselves - direct and straightforward
+        - Avoid flowery language - be direct and confident
+        - NEVER use the forbidden words listed above
+
+        SUMMARY FORMAT EXAMPLE (FOLLOW THIS STRUCTURE EXACTLY):
+        "Digital Marketing Manager with 7 years of experience developing and executing data-driven marketing campaigns that increase brand awareness and drive revenue growth. Proven expertise in SEO, SEM, content marketing, and social media strategy. Skilled in Google Analytics, HubSpot, and Salesforce with a track record of improving conversion rates by 45% and reducing customer acquisition costs by 30%. Strong analytical and leadership abilities with experience managing cross-functional teams and million-dollar budgets."
+
+        Notice the 4-part structure:
+        1. Title + years + what you accomplish
+        2. Core expertise areas
+        3. Tools + quantifiable impact/results
+        4. Soft skills + management/leadership experience
+
+        CONTENT OPTIMIZATION:
+        - Reword experience descriptions with job description keywords (naturally integrated)
+        - Title field MUST match the job title in job description exactly
+        - Every field in the JSON is critical - include ALL of them
+        - NO truncation of any content - provide COMPLETE descriptions
+
+        EXPERIENCE SECTION FORMATTING (CRITICAL):
+        - Include ALL work experiences from the source data - DO NOT omit any
+        - Each experience MUST have 4-6 bullet points (not just 1-2)
+        - Start each bullet with strong action verbs (Built, Created, Designed, Improved, Reduced, Increased, Led, Managed, Developed, Analyzed, Led, Conducted, etc.)
+        - Include quantifiable results in bullets (percentages, dollar amounts, time saved, number of users, etc.)
+        - Format: "Action verb + what you did + quantifiable result"
+        - Make bullets achievement-focused, not just task lists
+        - Vary bullet length - some short (10-15 words), some detailed (20-30 words)
+        - NO generic statements like "Responsible for" or "Worked on"
+
+        EXPERIENCE BULLET EXAMPLES (follow this style):
+        ✓ "Developed comprehensive digital marketing strategies that increased organic website traffic by 125% and generated 2,500+ qualified leads annually"
+        ✓ "Managed annual marketing budget of $800,000 and optimized spend allocation across channels including paid search, social media, and email marketing"
+        ✓ "Led team of 5 marketing specialists and coordinated with sales, product, and design teams to ensure alignment on campaign objectives"
+        ✓ "Conducted A/B testing on landing pages and email campaigns, resulting in 35% improvement in conversion rates and 28% increase in click-through rates"
+
+        Notice: Action verb starts, specific metrics, no fluff, concrete achievements.
+
+        Structure the output in this JSON format:
           ```
           {{
             "title": "Backend Developer & API Specialist",
@@ -243,13 +298,21 @@ class ATSResumeProcessor:
             ]
             }}
           ```
-        - Enhance the resume by incorporating relevant keywords from the job description (e.g., "customer support," "communication skills," "handle pressure," "interpersonal skills," "client education") into the skills and experience sections where applicable.
-        - Do not invent new experiences, certifications, or details—use only the information provided in the resume text.
-        - Return the enhanced resume data as a JSON string matching the exact structure of the template above.
-        - Calculate the ATS match score and include it as matchScore.
-        - If you do not find any detail is better to leave empty than N/A.
-        - Add as many experiences, projects,
-        Provide the output as a valid JSON string without additional text or comments.
+
+        FINAL OUTPUT REQUIREMENTS:
+        - Incorporate job description keywords NATURALLY throughout (e.g., specific technologies, methodologies, soft skills)
+        - Use ONLY verified information from resume text and user data - NO fabrication
+        - Return COMPLETE JSON with all fields filled - no truncation anywhere
+        - Calculate realistic ATS match score (60-95%) and include as matchScore
+        - Leave fields empty rather than using "N/A" if no information exists
+        - Include ALL experiences from source data (if source has 3 jobs, output must have 3 jobs)
+        - Include ALL education entries from source data
+        - Include ALL projects from source data
+        - Each experience MUST have 4-6 achievement-focused bullet points with metrics
+        - Make every sentence sound authentically human - vary structure and tone
+        - Ensure the output would pass GPTZero, Originality.ai, and other AI detectors as human-written
+
+        OUTPUT FORMAT: Return ONLY valid JSON matching the template structure above. No markdown, no comments, no additional text.
         """
             client = OpenAI(
                 api_key=self.api_key,  # Fix: Use self.api_key instead of self.api_key
@@ -259,7 +322,19 @@ class ATSResumeProcessor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are the best in creating 100% ATS friendly resumes. You understand how ATS systems works and the keywords any resume needs from the job description to standout.",
+                        "content": """You are an expert resume writer specializing in 2025 ATS-optimized resumes that are completely undetectable as AI-generated. Your resumes:
+- Pass ALL AI detection tools (GPTZero, Originality.ai, etc.) as 100% human-written
+- Are fully optimized for 2025 ATS systems with strategic keyword placement
+- Sound authentically human with natural language variations and personality
+- Include complete, detailed content with NO truncation
+- Use varied sentence structures and avoid repetitive AI patterns
+- Blend professional expertise with genuine human expression
+- Never use generic templates or formulaic corporate jargon unless contextually appropriate
+- NEVER use flowery, overly descriptive, or "purple prose" language
+- Write brief, punchy, direct statements - like how real people talk
+- Avoid the forbidden words list provided in the prompt
+- Summaries must follow the 4-part structure: years/title, expertise, tools/results, soft skills
+Your goal: Create resumes that hiring managers believe were written by the candidate themselves.""",
                     },
                      {
                         "role": "user",
@@ -267,7 +342,7 @@ class ATSResumeProcessor:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature=0.4,
+                temperature=0.7,
             )
             result = chat_completion.choices[0].message.content
             try:
@@ -294,20 +369,77 @@ class ATSResumeProcessor:
         """
         try:
             prompt = f"""
-                    Generate a 100% ATS-friendly resume data optimized for the job description below. Follow these instructions strictly to avoid hallucination:
+                    Generate a COMPLETE, 100% ATS-friendly resume for 2025 that reads naturally and authentically human. This resume MUST pass AI detection tools and feel completely human-written.
 
-                    - Extract all details (e.g., experience, skills, education, certifications) from the provided resume text: 
+                    ANTI-AI DETECTION REQUIREMENTS (2025):
+                    - Write in a natural, conversational professional tone with varied sentence structures
+                    - Use authentic human phrasing - avoid robotic patterns like "leveraged", "spearheaded" repeatedly
+                    - Include specific, concrete details and numbers that feel real and contextual
+                    - Vary bullet point lengths and structures naturally (some short, some detailed)
+                    - Use natural transitions and flow - not formulaic templates
+                    - Add personality through word choice while maintaining professionalism
+                    - NO generic corporate buzzwords unless genuinely necessary
+                    - Write like a real person describing their actual work experience
+
+                    FORBIDDEN WORDS (NEVER USE THESE - they sound AI-generated):
+                    can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving, dedicated, passionate, results-driven, leverage, solid foundation
+
+                    SOURCE DATA - MUST NOT HALLUCINATE:
+                    - Extract ALL details from the provided resume text:
                     ```
                     {resume_text}
                     ```
-                    - Optimize the resume to match the job description: 
+                    - Optimize to match this job description (use its keywords naturally):
                     ```
                     {job_description}
                     ```
-                    - Reword experience descriptions to incorporate all relevant keywords from job description.
-                    - Title should match the job title in job description
-                    - All the fields here are important to render the resume. So we must not miss any of them in the output.
-                    - Structure the output in this JSON format:
+
+                    PROFESSIONAL SUMMARY REQUIREMENTS:
+                    - Generate a COMPLETE professional summary (3-4 sentences, 70-90 words)
+                    - MUST include these 4 elements in order:
+                      1. Job title + years of experience + what you do/achieve
+                      2. Core expertise and specializations
+                      3. Tools/technologies + quantifiable results/impact
+                      4. Soft skills + additional capabilities (leadership, budgets, teams, etc.)
+                    - Make it 100% ATS-optimized with keywords from job description
+                    - Write like a real person would describe themselves - direct and straightforward
+                    - Avoid flowery language - be direct and confident
+                    - NEVER use the forbidden words listed above
+
+                    SUMMARY FORMAT EXAMPLE (FOLLOW THIS STRUCTURE EXACTLY):
+                    "Digital Marketing Manager with 7 years of experience developing and executing data-driven marketing campaigns that increase brand awareness and drive revenue growth. Proven expertise in SEO, SEM, content marketing, and social media strategy. Skilled in Google Analytics, HubSpot, and Salesforce with a track record of improving conversion rates by 45% and reducing customer acquisition costs by 30%. Strong analytical and leadership abilities with experience managing cross-functional teams and million-dollar budgets."
+
+                    Notice the 4-part structure:
+                    1. Title + years + what you accomplish
+                    2. Core expertise areas
+                    3. Tools + quantifiable impact/results
+                    4. Soft skills + management/leadership experience
+
+                    CONTENT OPTIMIZATION:
+                    - Reword experience descriptions with job description keywords (naturally integrated)
+                    - Title MUST match the job title in job description exactly
+                    - Every field in the JSON is critical - include ALL of them
+                    - NO truncation of any content - provide COMPLETE descriptions
+
+                    EXPERIENCE SECTION FORMATTING (CRITICAL):
+                    - Include ALL work experiences from the source data - DO NOT omit any
+                    - Each experience MUST have 4-6 bullet points (not just 1-2)
+                    - Start each bullet with strong action verbs (Built, Created, Designed, Improved, Reduced, Increased, Led, Managed, Developed, Analyzed, Conducted, etc.)
+                    - Include quantifiable results in bullets (percentages, dollar amounts, time saved, number of users, etc.)
+                    - Format: "Action verb + what you did + quantifiable result"
+                    - Make bullets achievement-focused, not just task lists
+                    - Vary bullet length - some short (10-15 words), some detailed (20-30 words)
+                    - NO generic statements like "Responsible for" or "Worked on"
+
+                    EXPERIENCE BULLET EXAMPLES (follow this style):
+                    ✓ "Developed comprehensive digital marketing strategies that increased organic website traffic by 125% and generated 2,500+ qualified leads annually"
+                    ✓ "Managed annual marketing budget of $800,000 and optimized spend allocation across channels including paid search, social media, and email marketing"
+                    ✓ "Led team of 5 marketing specialists and coordinated with sales, product, and design teams to ensure alignment on campaign objectives"
+                    ✓ "Conducted A/B testing on landing pages and email campaigns, resulting in 35% improvement in conversion rates and 28% increase in click-through rates"
+
+                    Notice: Action verb starts, specific metrics, no fluff, concrete achievements.
+
+                    Structure the output in this JSON format:
                     {{
 
                         "name": "Ekekenta Odonyenfe Clinton",
@@ -319,7 +451,7 @@ class ATSResumeProcessor:
                             "github": "http://github.com/icode247",
                             "website": "https://my-resume-icode247.vercel.app/"
                         }},
-                        "summary": "",
+                        "summary": "GENERATE THE 4-PART SUMMARY HERE following the exact structure shown above",
                         "skills": {{
                             "languages": ["JavaScript", "TypeScript", "Python", "Hausa"],
                             "frameworks": ["Express.js", "NestJS", "Strapi", "Next.js"],
@@ -371,12 +503,21 @@ class ATSResumeProcessor:
                         "matchScore": 85
                     }}
 
-                    - Every object, attribute, and key in the JSON output structure is important and should be there.
-                    - Enhance the resume by incorporating relevant keywords from the job description (e.g., "customer support," "communication skills," "handle pressure," "interpersonal skills," "client education") into the skills and experience sections where applicable.
-                    - Do not invent new experiences, certifications, or details—use only the information provided in the resume text.
-                    - Return the enhanced resume data as a JSON string matching the exact structure of the template above.
-                    - Calculate the ATS match score and include it as matchScore.
-                    Provide the output as a valid JSON string without additional text or comments.
+                    FINAL OUTPUT REQUIREMENTS:
+                    - Every object, attribute, and key in the JSON output structure is REQUIRED
+                    - THE "summary" FIELD IS MANDATORY - Generate the full 4-part ATS summary as described above
+                    - Incorporate job description keywords NATURALLY throughout the resume
+                    - Use ONLY verified information from resume text - NO fabrication
+                    - Return COMPLETE JSON with all fields filled - no truncation anywhere
+                    - Calculate realistic ATS match score (60-95%) and include as matchScore
+                    - Include ALL experiences from source data (if source has 3 jobs, output must have 3 jobs)
+                    - Include ALL education entries from source data
+                    - Include ALL projects from source data
+                    - Each experience MUST have 4-6 achievement-focused bullet points with metrics
+                    - Make every sentence sound authentically human - vary structure and tone
+                    - Ensure the output would pass GPTZero, Originality.ai, and other AI detectors as human-written
+
+                    OUTPUT FORMAT: Return ONLY valid JSON matching the template structure above. No markdown, no comments, no additional text.
                     """
             
             client = OpenAI(
@@ -387,7 +528,19 @@ class ATSResumeProcessor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are the best in creating 100% ATS friendly resumes. You understand how ATS systems works and the keywords any resume needs from the job description to standout.",
+                        "content": """You are an expert resume writer specializing in 2025 ATS-optimized resumes that are completely undetectable as AI-generated. Your resumes:
+- Pass ALL AI detection tools (GPTZero, Originality.ai, etc.) as 100% human-written
+- Are fully optimized for 2025 ATS systems with strategic keyword placement
+- Sound authentically human with natural language variations and personality
+- Include complete, detailed content with NO truncation
+- Use varied sentence structures and avoid repetitive AI patterns
+- Blend professional expertise with genuine human expression
+- Never use generic templates or formulaic corporate jargon unless contextually appropriate
+- NEVER use flowery, overly descriptive, or "purple prose" language
+- Write brief, punchy, direct statements - like how real people talk
+- Avoid the forbidden words list provided in the prompt
+- Summaries must follow the 4-part structure: years/title, expertise, tools/results, soft skills
+Your goal: Create resumes that hiring managers believe were written by the candidate themselves.""",
                     },
                      {
                         "role": "user",
@@ -395,7 +548,7 @@ class ATSResumeProcessor:
                     }
                 ],
                 model="gpt-4o-mini",
-                temperature=0.7,
+                temperature=0.8,
             )
             result = chat_completion.choices[0].message.content
             try:

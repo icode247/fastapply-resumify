@@ -8,7 +8,6 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from app.constants.resume_constants import ATS_RESUME_ELEMENTS_ORDER
 from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element
 from app.utils.sections.resume_section import Section
-from app.utils.resume_summary import generate_professional_summary
 
 
 def generate_resume_docx(author, resume_data):
@@ -69,9 +68,9 @@ def generate_resume_docx(author, resume_data):
     
     # Add some space after contact info
     doc.add_paragraph()
-    
-    # Process and add Professional Summary
-    summary_text = generate_professional_summary(resume_data, job_title)
+
+    # Add Professional Summary (use the one from resume_data if available)
+    summary_text = resume_data.get('summary', '')
     if summary_text:
         add_section_header(doc, "PROFESSIONAL SUMMARY")
         summary_paragraph = doc.add_paragraph()
