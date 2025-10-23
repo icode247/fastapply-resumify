@@ -215,13 +215,28 @@ class ATSResumeProcessor:
         3. Tools + quantifiable impact/results
         4. Soft skills + management/leadership experience
 
-        CONTENT OPTIMIZATION:
-        - Reword experience descriptions with job description keywords (naturally integrated)
+        STEP 1: ANALYZE THE JOB DESCRIPTION (DO THIS FIRST):
+        Before writing anything, extract and identify:
+        - ALL required skills mentioned (technical, soft skills, tools, frameworks, languages)
+        - ALL desired qualifications and experience levels
+        - ALL keywords that appear multiple times or are emphasized
+        - Core responsibilities and what the role actually does
+        - Industry-specific terminology and buzzwords
+        - Required certifications or methodologies (Agile, Scrum, etc.)
+
+        STEP 2: MATCH CANDIDATE EXPERIENCE TO JOB REQUIREMENTS:
+        - For EACH experience bullet, identify which job requirements it can address
+        - Prioritize highlighting experiences that match the TOP requirements
+        - If candidate has experience with required skills, MUST mention them explicitly
+        - Reframe existing achievements to use job description terminology
+
+        STEP 3: CONTENT OPTIMIZATION:
         - Title field MUST match the job title in job description exactly
         - Every field in the JSON is critical - include ALL of them
         - NO truncation of any content - provide COMPLETE descriptions
+        - Integrate job description keywords NATURALLY - don't force them
 
-        EXPERIENCE SECTION FORMATTING (CRITICAL):
+        EXPERIENCE SECTION FORMATTING (CRITICAL - THIS IS WHERE TAILORING HAPPENS):
         - Include ALL work experiences from the source data - DO NOT omit any
         - Each experience MUST have 4-6 bullet points (not just 1-2)
         - Start each bullet with strong action verbs (Built, Created, Designed, Improved, Reduced, Increased, Led, Managed, Developed, Analyzed, Led, Conducted, etc.)
@@ -231,13 +246,29 @@ class ATSResumeProcessor:
         - Vary bullet length - some short (10-15 words), some detailed (20-30 words)
         - NO generic statements like "Responsible for" or "Worked on"
 
-        EXPERIENCE BULLET EXAMPLES (follow this style):
-        ✓ "Developed comprehensive digital marketing strategies that increased organic website traffic by 125% and generated 2,500+ qualified leads annually"
-        ✓ "Managed annual marketing budget of $800,000 and optimized spend allocation across channels including paid search, social media, and email marketing"
-        ✓ "Led team of 5 marketing specialists and coordinated with sales, product, and design teams to ensure alignment on campaign objectives"
-        ✓ "Conducted A/B testing on landing pages and email campaigns, resulting in 35% improvement in conversion rates and 28% increase in click-through rates"
+        **CRITICAL FOR EXPERIENCE TAILORING:**
+        - REWRITE each experience bullet to include relevant keywords from job description
+        - If job requires "Python" and candidate used it, MENTION "Python" explicitly in bullets
+        - If job requires "team leadership" and candidate led teams, HIGHLIGHT that with metrics
+        - If job emphasizes "data-driven decisions", frame achievements around data and metrics
+        - Match the LANGUAGE and TERMINOLOGY used in the job description
+        - For each bullet, ask: "Does this highlight a skill/experience the job requires?"
 
-        Notice: Action verb starts, specific metrics, no fluff, concrete achievements.
+        EXPERIENCE BULLET EXAMPLES (follow this style):
+
+        Example 1 - If job requires Python, AWS, and microservices:
+        ✓ "Architected Python-based microservices deployed on AWS Lambda, reducing infrastructure costs by 40% while improving API response times by 250ms"
+
+        Example 2 - If job requires data analysis and reporting:
+        ✓ "Analyzed user behavior data from 500K+ monthly users to identify trends, creating automated Tableau dashboards that informed product decisions and increased engagement by 35%"
+
+        Example 3 - If job requires leadership and cross-functional collaboration:
+        ✓ "Led cross-functional team of 8 engineers, designers, and product managers to deliver major feature releases, coordinating sprint planning and maintaining 95% on-time delivery rate"
+
+        Example 4 - If job requires performance optimization:
+        ✓ "Optimized database queries and implemented Redis caching layer, reducing page load times from 4.2s to 800ms and supporting 10x traffic increase during peak hours"
+
+        Notice: Each bullet uses specific keywords from hypothetical job requirements AND includes metrics/impact.
 
         Structure the output in this JSON format:
           ```
@@ -300,6 +331,17 @@ class ATSResumeProcessor:
           ```
 
         FINAL OUTPUT REQUIREMENTS:
+
+        **EXPERIENCE TAILORING IS MANDATORY - THIS IS THE MOST IMPORTANT PART:**
+        - EVERY experience bullet MUST be rewritten to match job description requirements
+        - Extract ALL required skills from job description and highlight them in experience bullets
+        - Use the EXACT terminology and keywords from the job description
+        - If job mentions specific technologies (e.g., "React", "AWS", "Python"), those MUST appear in relevant bullets
+        - If candidate has experience matching job requirements, it MUST be prominently featured
+        - Don't just add keywords - REFRAME the entire bullet to highlight relevant experience
+        - Each bullet should answer: "How does this experience prove I can do what this job requires?"
+
+        **OTHER REQUIREMENTS:**
         - Incorporate job description keywords NATURALLY throughout (e.g., specific technologies, methodologies, soft skills)
         - Use ONLY verified information from resume text and user data - NO fabrication
         - Return COMPLETE JSON with all fields filled - no truncation anywhere
@@ -334,7 +376,17 @@ class ATSResumeProcessor:
 - Write brief, punchy, direct statements - like how real people talk
 - Avoid the forbidden words list provided in the prompt
 - Summaries must follow the 4-part structure: years/title, expertise, tools/results, soft skills
-Your goal: Create resumes that hiring managers believe were written by the candidate themselves.""",
+
+**CRITICAL SKILL - EXPERIENCE TAILORING:**
+Your PRIMARY responsibility is to analyze job descriptions and tailor candidate experiences to match requirements:
+1. First, extract ALL skills, technologies, qualifications, and keywords from the job description
+2. Then, rewrite EVERY experience bullet to highlight how the candidate meets those specific requirements
+3. Use the EXACT terminology from the job description in the experience bullets
+4. If the job requires Python and the candidate used Python, you MUST explicitly mention Python in the bullets
+5. Frame achievements to directly address what the job is asking for
+6. The tailoring must be natural and authentic - not keyword stuffing
+
+Your goal: Create resumes that hiring managers believe were written by the candidate themselves AND that clearly demonstrate the candidate is a perfect match for the specific role.""",
                     },
                      {
                         "role": "user",
@@ -415,13 +467,28 @@ Your goal: Create resumes that hiring managers believe were written by the candi
                     3. Tools + quantifiable impact/results
                     4. Soft skills + management/leadership experience
 
-                    CONTENT OPTIMIZATION:
-                    - Reword experience descriptions with job description keywords (naturally integrated)
+                    STEP 1: ANALYZE THE JOB DESCRIPTION (DO THIS FIRST):
+                    Before writing anything, extract and identify:
+                    - ALL required skills mentioned (technical, soft skills, tools, frameworks, languages)
+                    - ALL desired qualifications and experience levels
+                    - ALL keywords that appear multiple times or are emphasized
+                    - Core responsibilities and what the role actually does
+                    - Industry-specific terminology and buzzwords
+                    - Required certifications or methodologies (Agile, Scrum, etc.)
+
+                    STEP 2: MATCH CANDIDATE EXPERIENCE TO JOB REQUIREMENTS:
+                    - For EACH experience bullet, identify which job requirements it can address
+                    - Prioritize highlighting experiences that match the TOP requirements
+                    - If candidate has experience with required skills, MUST mention them explicitly
+                    - Reframe existing achievements to use job description terminology
+
+                    STEP 3: CONTENT OPTIMIZATION:
                     - Title MUST match the job title in job description exactly
                     - Every field in the JSON is critical - include ALL of them
                     - NO truncation of any content - provide COMPLETE descriptions
+                    - Integrate job description keywords NATURALLY - don't force them
 
-                    EXPERIENCE SECTION FORMATTING (CRITICAL):
+                    EXPERIENCE SECTION FORMATTING (CRITICAL - THIS IS WHERE TAILORING HAPPENS):
                     - Include ALL work experiences from the source data - DO NOT omit any
                     - Each experience MUST have 4-6 bullet points (not just 1-2)
                     - Start each bullet with strong action verbs (Built, Created, Designed, Improved, Reduced, Increased, Led, Managed, Developed, Analyzed, Conducted, etc.)
@@ -431,13 +498,29 @@ Your goal: Create resumes that hiring managers believe were written by the candi
                     - Vary bullet length - some short (10-15 words), some detailed (20-30 words)
                     - NO generic statements like "Responsible for" or "Worked on"
 
-                    EXPERIENCE BULLET EXAMPLES (follow this style):
-                    ✓ "Developed comprehensive digital marketing strategies that increased organic website traffic by 125% and generated 2,500+ qualified leads annually"
-                    ✓ "Managed annual marketing budget of $800,000 and optimized spend allocation across channels including paid search, social media, and email marketing"
-                    ✓ "Led team of 5 marketing specialists and coordinated with sales, product, and design teams to ensure alignment on campaign objectives"
-                    ✓ "Conducted A/B testing on landing pages and email campaigns, resulting in 35% improvement in conversion rates and 28% increase in click-through rates"
+                    **CRITICAL FOR EXPERIENCE TAILORING:**
+                    - REWRITE each experience bullet to include relevant keywords from job description
+                    - If job requires "Python" and candidate used it, MENTION "Python" explicitly in bullets
+                    - If job requires "team leadership" and candidate led teams, HIGHLIGHT that with metrics
+                    - If job emphasizes "data-driven decisions", frame achievements around data and metrics
+                    - Match the LANGUAGE and TERMINOLOGY used in the job description
+                    - For each bullet, ask: "Does this highlight a skill/experience the job requires?"
 
-                    Notice: Action verb starts, specific metrics, no fluff, concrete achievements.
+                    EXPERIENCE BULLET EXAMPLES (follow this style):
+
+                    Example 1 - If job requires Python, AWS, and microservices:
+                    ✓ "Architected Python-based microservices deployed on AWS Lambda, reducing infrastructure costs by 40% while improving API response times by 250ms"
+
+                    Example 2 - If job requires data analysis and reporting:
+                    ✓ "Analyzed user behavior data from 500K+ monthly users to identify trends, creating automated Tableau dashboards that informed product decisions and increased engagement by 35%"
+
+                    Example 3 - If job requires leadership and cross-functional collaboration:
+                    ✓ "Led cross-functional team of 8 engineers, designers, and product managers to deliver major feature releases, coordinating sprint planning and maintaining 95% on-time delivery rate"
+
+                    Example 4 - If job requires performance optimization:
+                    ✓ "Optimized database queries and implemented Redis caching layer, reducing page load times from 4.2s to 800ms and supporting 10x traffic increase during peak hours"
+
+                    Notice: Each bullet uses specific keywords from hypothetical job requirements AND includes metrics/impact.
 
                     Structure the output in this JSON format:
                     {{
@@ -504,6 +587,17 @@ Your goal: Create resumes that hiring managers believe were written by the candi
                     }}
 
                     FINAL OUTPUT REQUIREMENTS:
+
+                    **EXPERIENCE TAILORING IS MANDATORY - THIS IS THE MOST IMPORTANT PART:**
+                    - EVERY experience bullet MUST be rewritten to match job description requirements
+                    - Extract ALL required skills from job description and highlight them in experience bullets
+                    - Use the EXACT terminology and keywords from the job description
+                    - If job mentions specific technologies (e.g., "React", "AWS", "Python"), those MUST appear in relevant bullets
+                    - If candidate has experience matching job requirements, it MUST be prominently featured
+                    - Don't just add keywords - REFRAME the entire bullet to highlight relevant experience
+                    - Each bullet should answer: "How does this experience prove I can do what this job requires?"
+
+                    **OTHER REQUIREMENTS:**
                     - Every object, attribute, and key in the JSON output structure is REQUIRED
                     - THE "summary" FIELD IS MANDATORY - Generate the full 4-part ATS summary as described above
                     - Incorporate job description keywords NATURALLY throughout the resume
@@ -519,7 +613,7 @@ Your goal: Create resumes that hiring managers believe were written by the candi
 
                     OUTPUT FORMAT: Return ONLY valid JSON matching the template structure above. No markdown, no comments, no additional text.
                     """
-            
+
             client = OpenAI(
                 api_key=self.api_key,
             )
@@ -540,7 +634,17 @@ Your goal: Create resumes that hiring managers believe were written by the candi
 - Write brief, punchy, direct statements - like how real people talk
 - Avoid the forbidden words list provided in the prompt
 - Summaries must follow the 4-part structure: years/title, expertise, tools/results, soft skills
-Your goal: Create resumes that hiring managers believe were written by the candidate themselves.""",
+
+**CRITICAL SKILL - EXPERIENCE TAILORING:**
+Your PRIMARY responsibility is to analyze job descriptions and tailor candidate experiences to match requirements:
+1. First, extract ALL skills, technologies, qualifications, and keywords from the job description
+2. Then, rewrite EVERY experience bullet to highlight how the candidate meets those specific requirements
+3. Use the EXACT terminology from the job description in the experience bullets
+4. If the job requires Python and the candidate used Python, you MUST explicitly mention Python in the bullets
+5. Frame achievements to directly address what the job is asking for
+6. The tailoring must be natural and authentic - not keyword stuffing
+
+Your goal: Create resumes that hiring managers believe were written by the candidate themselves AND that clearly demonstrate the candidate is a perfect match for the specific role.""",
                     },
                      {
                         "role": "user",
