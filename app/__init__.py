@@ -61,6 +61,7 @@ def create_app(config_object=None):
     from app.api.linkedin_hashtags import bp as linkedin_hashtags_bp
     from app.api.interview import bp as interview_bp
     from app.api.intelligent_parse import bp as intelligent_parse_bp
+    from app.api.job_match_ai import bp as job_match_ai_bp
 
 
     app.register_blueprint(upload_bp, url_prefix='/api')
@@ -78,6 +79,7 @@ def create_app(config_object=None):
     app.register_blueprint(linkedin_hashtags_bp, url_prefix='/api')
     app.register_blueprint(interview_bp, url_prefix='/api')  
     app.register_blueprint(intelligent_parse_bp, url_prefix='/api')
+    app.register_blueprint(job_match_ai_bp, url_prefix='/api')
 
     # Health check endpoint
     @app.route('/health', methods=['GET'])
