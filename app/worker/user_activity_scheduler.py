@@ -4,6 +4,12 @@ import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
 
+# Configure logging FIRST
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
 # Load environment variables
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 if os.path.exists(dotenv_path):
@@ -12,14 +18,9 @@ if os.path.exists(dotenv_path):
 else:
     logging.warning(f".env file not found at: {dotenv_path}. Using system environment variables.")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
 # Environment variable for Vercel rate limit reset endpoint
 RATE_LIMIT_RESET_URL = os.environ.get('RATE_LIMIT_RESET_URL')
+logging.info(f"RATE_LIMIT_RESET_URL loaded: {RATE_LIMIT_RESET_URL}")
 
 scheduler = BlockingScheduler(timezone="UTC")
 
