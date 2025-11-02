@@ -92,26 +92,48 @@ class JobMatcherAI:
     
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the AI."""
-        return """You are an expert career advisor and job matching AI. Your role is to analyze whether a candidate should apply for a job based on their resume, job preferences, and the job requirements.
+        return """You are a STRICT job matching AI that prevents candidates from wasting time on mismatched jobs. Your analysis must be rigorous and conservative.
 
 You must respond with a JSON object containing:
-1. "shouldApply": boolean - true if they should apply, false otherwise
-2. "reason": string - A concise explanation (MAX 20 words) of why they should or shouldn't apply. Focus on key mismatches if shouldApply is false.
-3. "matchScore": number - A score from 0-100 indicating overall fit
-4. "mismatches": array of strings - Specific items that don't match (e.g., "Required 5 years Python experience", "Location: Remote required but not offered")
+1. "shouldApply": boolean - true ONLY if both preferences AND qualifications match
+2. "reason": string - Concise explanation (MAX 20 words) focusing on the PRIMARY mismatch
+3. "matchScore": number - Score 0-100 (be conservative, realistic scores)
+4. "mismatches": array of strings - ALL specific mismatches found
 
-Be strict but fair. Consider:
-- Hard requirements (must-haves) vs nice-to-haves
-- Years of experience requirements
-- Technical skills match
-- Location preferences
-- Salary expectations
-- Work arrangement (remote/hybrid/onsite)
-- Career level alignment
-- Language proficiency
-- Industry alignment
+CRITICAL VALIDATION PROCESS (MUST FOLLOW IN ORDER):
 
-Keep the reason concise, clear, and actionable. Don't truncate - use exactly the right words within 20 word limit."""
+STEP 1 - PREFERENCES VALIDATION (IMMEDIATE DISQUALIFICATION IF FAILED):
+- Deal-breakers: ANY deal-breaker match = instant rejection
+- Remote preference: If "required", job MUST be remote. Hybrid/onsite = reject
+- Location: If preferences specified, job location MUST match one of them
+- Salary: Job salary must meet minimum expectations. Below min = reject
+- Role type: Job title/role must align with preferred roles if specified
+
+STEP 2 - RESUME-JOB REQUIREMENTS MATCH (ONLY IF STEP 1 PASSES):
+- Required skills: Candidate MUST have ALL listed required skills
+- Experience years: Candidate must meet or exceed minimum years required
+- Education level: If degree specified as required, candidate must have it
+- Technical stack: Core technologies must match (Python job needs Python experience)
+- Seniority level: Junior candidates cannot apply for senior roles and vice versa
+
+STRICTNESS RULES:
+- If job requires "5+ years Python" and resume shows 3 years = REJECT
+- If remote is required and job is onsite = REJECT
+- If candidate prefers $150k+ and job offers $80k-100k = REJECT
+- Missing even ONE critical required skill = REJECT
+- Any deal-breaker present = REJECT
+- When in doubt, recommend NOT applying (better safe than sorry)
+
+SCORING GUIDELINES (be harsh):
+- 90-100: Perfect match (rare - nearly impossible to achieve)
+- 80-89: Excellent match (all requirements met, good preferences alignment)
+- 70-79: Good match (requirements met, some preference mismatches)
+- 60-69: Acceptable match (requirements mostly met, several preference issues)
+- Below 60: Not a good match - should NOT apply
+
+Set shouldApply=false if matchScore < 70 OR if any critical mismatch exists.
+
+Keep reason under 20 words, focusing on the PRIMARY blocking issue."""
 
     def _build_analysis_prompt(
         self,
@@ -138,10 +160,7 @@ Keep the reason concise, clear, and actionable. Don't truncate - use exactly the
         preferred_roles = job_preferences.get('roles', [])
         deal_breakers = job_preferences.get('deal_breakers', [])
         
-        prompt = f"""Analyze this job match:
-
-RESUME:
-{resume_text[:3000]}  
+        prompt = f"""STRICT JOB MATCH ANALYSIS - Follow validation steps in order:
 
 JOB INFORMATION:
 - Title: {job_title}
@@ -152,19 +171,37 @@ JOB INFORMATION:
 - Type: {job_type}
 - Experience Required: {experience_required}
 
-CANDIDATE PREFERENCES:
+CANDIDATE PREFERENCES (CHECK FIRST - MUST ALL MATCH):
 - Preferred Locations: {', '.join(preferred_locations) if preferred_locations else 'Any'}
 - Salary Range: {f'${min_salary:,}' if min_salary else 'Not specified'} - {f'${max_salary:,}' if max_salary else 'Not specified'}
 - Remote Preference: {remote_preference or 'No preference'}
 - Preferred Roles: {', '.join(preferred_roles) if preferred_roles else 'Any'}
 - Deal Breakers: {', '.join(deal_breakers) if deal_breakers else 'None'}
 
-Analyze if the candidate should apply. Be thorough but concise in your reason (max 20 words)."""
+CANDIDATE RESUME (CHECK ONLY IF PREFERENCES MATCH):
+{resume_text[:3000]}
+
+VALIDATION STEPS:
+1. First, validate ALL candidate preferences against job information
+   - Check deal-breakers first
+   - Validate location match
+   - Validate remote/hybrid/onsite requirement
+   - Validate salary meets minimum expectation
+   - Validate role type alignment
+   
+2. Only if Step 1 passes completely, validate resume against job requirements
+   - Check required skills presence
+   - Verify experience years meet minimum
+   - Confirm technical stack alignment
+   - Validate seniority level match
+
+If ANY preference mismatches or ANY critical requirement is unmet, set shouldApply=false.
+List ALL mismatches found. Be strict and conservative."""
         
         return prompt
     
     def _validate_and_format_response(self, result: Dict) -> Dict:
-        """Validate and format the AI response."""
+        """Validate and format the AI response with strict enforcement."""
         # Ensure required fields exist
         if 'shouldApply' not in result:
             raise ValueError("AI response missing 'shouldApply' field")
@@ -189,10 +226,26 @@ Analyze if the candidate should apply. Be thorough but concise in your reason (m
         if 'mismatches' not in result or not isinstance(result['mismatches'], list):
             result['mismatches'] = []
         
+        # STRICT ENFORCEMENT: Override shouldApply if score is too low or mismatches exist
+        should_apply = bool(result['shouldApply'])
+        match_score = float(result['matchScore'])
+        mismatches = result['mismatches']
+        
+        # Force shouldApply=false if score < 70 or if there are critical mismatches
+        if match_score < 70:
+            should_apply = False
+            logger.info(f"Overriding shouldApply to false due to low score: {match_score}")
+        
+        if mismatches and len(mismatches) > 0:
+            # If there are any mismatches, be conservative
+            if match_score < 80:
+                should_apply = False
+                logger.info(f"Overriding shouldApply to false due to mismatches and score < 80")
+        
         return {
-            'shouldApply': bool(result['shouldApply']),
+            'shouldApply': should_apply,
             'reason': str(result['reason']).strip(),
-            'matchScore': float(result['matchScore']),
+            'matchScore': match_score,
             'mismatches': [str(m).strip() for m in result['mismatches']]
         }
     

@@ -35,7 +35,12 @@ def require_matcher(f):
 @require_matcher
 def analyze_job_match():
     """
-    Analyze if a candidate should apply for a job.
+    STRICT AI job matching analysis - prevents wasting time on mismatched jobs.
+    
+    Validation Process:
+    1. First validates ALL candidate preferences against job information
+    2. Only if preferences match, validates resume against job requirements
+    3. Returns shouldApply=false if matchScore < 70 OR any critical mismatch exists
     
     Request body:
     {
