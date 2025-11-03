@@ -36,32 +36,43 @@ def require_matcher(f):
 def analyze_job_match():
     """
     STRICT AI job matching analysis - prevents wasting time on mismatched jobs.
-    
+
     Validation Process:
-    1. First validates ALL candidate preferences against job information
-    2. Only if preferences match, validates resume against job requirements
-    3. Returns shouldApply=false if matchScore < 70 OR any critical mismatch exists
+    1. First validates ALL candidate preferences against job information (language, location, salary, company blacklist, industry, etc.)
+    2. If apply_only_qualified=true, also validates resume against job requirements
+    3. If apply_only_qualified=false, only checks preferences (allows applying even if not fully qualified)
+    4. Returns shouldApply=false if matchScore < 70 OR any critical mismatch exists
     
     Request body:
     {
         "resume_text": "string (required)",
         "job_information": {
             "title": "string",
+            "company": "string (optional - can be extracted from description)",
+            "industry": "string (optional - can be inferred from description/title)",
             "description": "string",
             "requirements": "string",
             "location": "string",
             "salary": "string",
             "type": "remote|hybrid|onsite",
-            "experience_required": "string"
+            "experience_required": "string",
+            "languages_required": ["string"] (optional - can be extracted from description)
         },
         "job_preferences": {
-            "locations": ["string"],
-            "min_salary": number,
-            "max_salary": number,
-            "remote_preference": "required|preferred|no_preference",
-            "roles": ["string"],
-            "deal_breakers": ["string"]
-        }
+            "jobType": ["Full-time", "Part-time", "Contract"] (optional),
+            "experience": ["Entry level", "Internship", "Associate", "Mid-Senior level"] (optional),
+            "salary": [min, max] (optional - array of two numbers),
+            "city": "string" (optional),
+            "location": "string" (optional - country),
+            "positions": ["Software Engineer", "..."] (optional),
+            "remoteOnly": boolean (optional - default false),
+            "workMode": ["Remote", "Hybrid", "On-Site"] (optional),
+            "language": ["English", "Spanish", "..."] (optional),
+            "industry": ["Technology", "Healthcare", "..."] (optional),
+            "companyBlacklist": ["string"] (optional),
+            "deal_breakers": ["string"] (optional)
+        },
+        "apply_only_qualified": boolean (optional - default: true)
     }
     
     Response:
@@ -97,12 +108,14 @@ def analyze_job_match():
             }), 400
         
         job_preferences = data.get('job_preferences', {})
-        
+        apply_only_qualified = data.get('apply_only_qualified', True)  # Default to True for backward compatibility
+
         # Perform analysis
         result = matcher.analyze_job_match(
             resume_text=resume_text,
             job_information=job_information,
-            job_preferences=job_preferences
+            job_preferences=job_preferences,
+            apply_only_qualified=apply_only_qualified
         )
         
         return jsonify({
