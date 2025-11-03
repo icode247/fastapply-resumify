@@ -25,7 +25,7 @@ def require_matcher(f):
     def decorated_function(*args, **kwargs):
         if matcher is None:
             return jsonify({
-                "error": "Job matcher service unavailable. Please check OPENAI_API_KEY configuration."
+                "error": "Job matcher service unavailable. Please check USE_CHATGPT, OPENAI_API_KEY (if OpenAI), or HF_TOKEN (if Hugging Face) configuration."
             }), 503
         return f(*args, **kwargs)
     return decorated_function
