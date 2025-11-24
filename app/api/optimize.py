@@ -60,21 +60,26 @@ def optimize_resume():
         }), 500
 
 @bp.route('/generate-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+# @cache_response(expiration=7200)  # Cache for 2 hours
 def generate_resume():
     try:
         job_description = request.json.get('job_description')
         resume_text = request.json.get('resume_text', '')
-        
+        user_data = request.json.get('user_data')
+        print(user_data, job_description, resume_text)
+
         if not job_description or not resume_text:
             return jsonify({"error": "Missing required fields"}), 400
-       
-        optimized_data = resume_processor.process_resume(resume_text, job_description)
+
+        if not user_data:
+            return jsonify({"error": "User data is required"}), 400
+
+        optimized_data = resume_processor.process_resume(resume_text, job_description, user_data)
         return jsonify({
             "success": True,
             "data": optimized_data
         })
-        
+
     except Exception as error:
         logger.error(f"API Error: {str(error)}")
         return jsonify({

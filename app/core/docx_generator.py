@@ -5,9 +5,53 @@ import io
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.shared import OxmlElement
+from docx.oxml.ns import qn
 from app.constants.resume_constants import ATS_RESUME_ELEMENTS_ORDER
-from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element
+from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element, get_achievements_element
 from app.utils.sections.resume_section import Section
+
+
+def add_hyperlink(paragraph, text, url):
+    """
+    Add a hyperlink to a paragraph in DOCX
+
+    Args:
+        paragraph: The paragraph to add the hyperlink to
+        text: The text to display for the link
+        url: The URL to link to
+
+    Returns:
+        The hyperlink element
+    """
+    # This gets access to the document.xml.rels file and gets a new relation id value
+    part = paragraph.part
+    r_id = part.relate_to(url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True)
+
+    # Create the w:hyperlink tag and add needed values
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id, )
+
+    # Create a new run object (a wrapper over a 'w:r' element)
+    new_run = OxmlElement('w:r')
+
+    # Set the run's text
+    rPr = OxmlElement('w:rPr')
+
+    # Set the run's style to 'Hyperlink'
+    rStyle = OxmlElement('w:rStyle')
+    rStyle.set(qn('w:val'), 'Hyperlink')
+    rPr.append(rStyle)
+
+    new_run.append(rPr)
+    new_run.text = text
+
+    hyperlink.append(new_run)
+
+    # Add the hyperlink to the paragraph
+    paragraph._p.append(hyperlink)
+
+    return hyperlink
 
 
 def generate_resume_docx(author, resume_data):
@@ -36,10 +80,14 @@ def generate_resume_docx(author, resume_data):
     if not author and 'name' in resume_data:
         author = resume_data.get('name', '')
     
-    # Extract contact information
-    email = resume_data.get('email', '')
-    phone = resume_data.get('phone', '')
-    address = resume_data.get('address', '')
+    # Extract contact information from nested contact object
+    contact = resume_data.get('contact', {})
+    email = contact.get('email', '')
+    phone = contact.get('phone', '')
+    location = contact.get('location', '')
+    linkedin = contact.get('linkedin', '')
+    github = contact.get('github', '')
+    portfolio = contact.get('portfolio', '')
     job_title = resume_data.get('title', '')
     
     # Add name (header)
@@ -60,11 +108,54 @@ def generate_resume_docx(author, resume_data):
     
     # Add contact information
     contact_paragraph = doc.add_paragraph()
-    contact_text = f"{email} | {phone} | {address}"
-    contact_run = contact_paragraph.add_run(contact_text)
-    contact_run.font.size = Pt(11)
-    contact_run.font.name = 'Calibri'
     contact_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # Build contact information with hyperlinks
+    first_item = True
+
+    if email:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        run = contact_paragraph.add_run(email)
+        run.font.size = Pt(11)
+        run.font.name = 'Calibri'
+        first_item = False
+
+    if phone:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        run = contact_paragraph.add_run(phone)
+        run.font.size = Pt(11)
+        run.font.name = 'Calibri'
+        first_item = False
+
+    if location:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        run = contact_paragraph.add_run(location)
+        run.font.size = Pt(11)
+        run.font.name = 'Calibri'
+        first_item = False
+
+    if github:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        add_hyperlink(contact_paragraph, "Github", github)
+        first_item = False
+
+    if linkedin:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        add_hyperlink(contact_paragraph, "Linkedin", linkedin)
+        first_item = False
+
+    if portfolio:
+        if not first_item:
+            contact_paragraph.add_run(" | ").font.size = Pt(11)
+        run = contact_paragraph.add_run(portfolio)
+        run.font.size = Pt(11)
+        run.font.name = 'Calibri'
+        first_item = False
     
     # Add some space after contact info
     doc.add_paragraph()
@@ -150,7 +241,31 @@ def process_resume_sections(resume_data):
         for element in resume_data['projects']:
             project_elements.append(get_project_element(element))
         processed_resume_data['projects'] = Section('PROJECTS', project_elements)
-    
+
+    # Process achievements data
+    if 'achievements' in resume_data and resume_data['achievements']:
+        achievements_list = resume_data['achievements']
+        if isinstance(achievements_list, list) and achievements_list:
+            achievement_elements = []
+            achievement_elements.append(get_achievements_element(achievements_list))
+            processed_resume_data['achievements'] = Section('ACHIEVEMENTS', achievement_elements)
+
+    # Process certifications data
+    if 'certifications' in resume_data and resume_data['certifications']:
+        certifications = resume_data['certifications']
+        if isinstance(certifications, list) and certifications:
+            cert_elements = []
+            cert_elements.append(get_achievements_element(certifications))
+            processed_resume_data['certifications'] = Section('CERTIFICATIONS', cert_elements)
+
+    # Process languages data (add as separate section if present)
+    if 'languages' in resume_data and resume_data['languages']:
+        language_list = resume_data['languages']
+        if isinstance(language_list, list) and language_list:
+            lang_elements = []
+            lang_elements.append(get_skills_element('Languages', language_list))
+            processed_resume_data['languages'] = Section('LANGUAGES', lang_elements)
+
     return processed_resume_data
 
 

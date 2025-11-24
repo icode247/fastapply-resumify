@@ -7,6 +7,7 @@ from app.utils.elements.resume_education import Education
 from app.utils.elements.resume_experience import Experience
 from app.utils.elements.resume_project import Project
 from app.utils.elements.resume_skill import Skill
+from app.utils.elements.resume_achievement import Achievement
 
 ALLOWED_EXTENSIONS = {'pdf'}
 
@@ -93,6 +94,12 @@ def get_project_element(element) -> Project:
 def get_skills_element(title, elements) -> Skill:
     e = Skill()
     e.set_title(title)
+    e.set_elements(elements if isinstance(elements, list) else [])
+    return e
+
+def get_achievements_element(elements) -> Achievement:
+    """Create an Achievement element from a list of achievements"""
+    e = Achievement()
     e.set_elements(elements if isinstance(elements, list) else [])
     return e
 

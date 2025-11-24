@@ -3,7 +3,7 @@ Resume PDF generation functionality.
 """
 import io
 from app.constants import FULL_COLUMN_WIDTH
-from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element
+from app.utils.helpers import get_education_element, get_experience_element, get_project_element, get_skills_element, get_achievements_element
 from app.utils.sections.resume_section import Section
 from app.constants.resume_constants import ATS_RESUME_ELEMENTS_ORDER, NAME_PARAGRAPH_STYLE, CONTACT_PARAGRAPH_STYLE, SECTION_PARAGRAPH_STYLE
 from reportlab.lib.pagesizes import A4, letter
@@ -174,12 +174,16 @@ def generate_resume_pdf(author, resume_data):
     # Use provided author or get from resume_data
     if not author and 'name' in resume_data:
         author = resume_data.get('name', '')
-       
-    # Fallback for direct contact fields
-    email = resume_data.get('email', '')
-    phone = resume_data.get('phone', '')
-    address = resume_data.get('address', '')
-    
+
+    # Extract contact information from nested contact object
+    contact = resume_data.get('contact', {})
+    email = contact.get('email', '')
+    phone = contact.get('phone', '')
+    location = contact.get('location', '')
+    linkedin = contact.get('linkedin', '')
+    github = contact.get('github', '')
+    portfolio = contact.get('portfolio', '')
+
     # Get job title if available
     job_title = resume_data.get('title', '')
         
@@ -214,6 +218,9 @@ def generate_resume_pdf(author, resume_data):
     project_elements = []
     if 'projects' in resume_data and resume_data['projects'] and len(resume_data['projects']) > 0:
         for element in resume_data['projects']:
+            # Map 'name' field to 'title' if needed for compatibility
+            if 'name' in element and 'title' not in element:
+                element['title'] = element['name']
             project_elements.append(get_project_element(element))
         # Only add projects section if there are actual projects
         processed_resume_data['projects'] = Section('PROJECTS', project_elements)
@@ -222,36 +229,77 @@ def generate_resume_pdf(author, resume_data):
     skill_elements = []
     if 'skills' in resume_data:
         skills_data = resume_data['skills']
-        
+
         # Handle when skills is a dictionary with categories
         if isinstance(skills_data, dict):
-            # Process frameworks/libraries
-            if 'frameworks/libraries' in skills_data:
-                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks/libraries']))
-            elif 'frameworks' in skills_data:
-                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks']))
-            
-            # Process languages
-            if 'languages' in skills_data:
+            # Process technical skills
+            if 'technical' in skills_data and skills_data['technical']:
+                skill_elements.append(get_skills_element('Technical Skills', skills_data['technical']))
+
+            # Process programming languages
+            if 'languages' in skills_data and skills_data['languages']:
                 skill_elements.append(get_skills_element('Programming Languages', skills_data['languages']))
-            
-            # Process technologies
-            if 'technologies' in skills_data:
+
+            # Process frameworks
+            if 'frameworks' in skills_data and skills_data['frameworks']:
+                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks']))
+            elif 'frameworks/libraries' in skills_data and skills_data['frameworks/libraries']:
+                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks/libraries']))
+
+            # Process tools
+            if 'tools' in skills_data and skills_data['tools']:
+                skill_elements.append(get_skills_element('Tools', skills_data['tools']))
+
+            # Process technologies (legacy field)
+            if 'technologies' in skills_data and skills_data['technologies']:
                 skill_elements.append(get_skills_element('Technologies', skills_data['technologies']))
-            
-            # Process others/soft skills
-            if 'others' in skills_data:
+
+            # Process methodologies
+            if 'methodologies' in skills_data and skills_data['methodologies']:
+                skill_elements.append(get_skills_element('Methodologies', skills_data['methodologies']))
+
+            # Process soft skills
+            if 'soft_skills' in skills_data and skills_data['soft_skills']:
+                skill_elements.append(get_skills_element('Soft Skills', skills_data['soft_skills']))
+
+            # Process others (legacy field)
+            if 'others' in skills_data and skills_data['others']:
                 skill_elements.append(get_skills_element('Other Skills', skills_data['others']))
-        
+
         # Handle when skills is a list of dictionaries
         elif isinstance(skills_data, list):
             for skill in skills_data:
                 if isinstance(skill, dict) and 'title' in skill:
                     elements = skill.get('elements', [])
-                    skill_elements.append(get_skills_element(skill['title'], elements))
-    
+                    if elements:
+                        skill_elements.append(get_skills_element(skill['title'], elements))
+
     processed_resume_data['skills'] = Section('Skills', skill_elements)
-    
+
+    # Process certifications data
+    if 'certifications' in resume_data and resume_data['certifications']:
+        certifications = resume_data['certifications']
+        if isinstance(certifications, list) and certifications:
+            cert_elements = []
+            cert_elements.append(get_achievements_element(certifications))
+            processed_resume_data['certifications'] = Section('CERTIFICATIONS', cert_elements)
+
+    # Process languages data (add as separate section if present)
+    if 'languages' in resume_data and resume_data['languages']:
+        language_list = resume_data['languages']
+        if isinstance(language_list, list) and language_list:
+            lang_elements = []
+            lang_elements.append(get_skills_element('Languages', language_list))
+            processed_resume_data['languages'] = Section('LANGUAGES', lang_elements)
+
+    # Process achievements data
+    if 'achievements' in resume_data and resume_data['achievements']:
+        achievements_list = resume_data['achievements']
+        if isinstance(achievements_list, list) and achievements_list:
+            achievement_elements = []
+            achievement_elements.append(get_achievements_element(achievements_list))
+            processed_resume_data['achievements'] = Section('ACHIEVEMENTS', achievement_elements)
+
     # Add the name to the table (span both columns for full width)
     table.append([
         Paragraph(author, NAME_PARAGRAPH_STYLE), ''
@@ -271,8 +319,25 @@ def generate_resume_pdf(author, resume_data):
         running_row_index[0] += 1
 
     # Add contact information (span both columns for full width)
+    # Build contact string with available fields
+    contact_parts = []
+    if email:
+        contact_parts.append(email)
+    if phone:
+        contact_parts.append(phone)
+    if location:
+        contact_parts.append(location)
+    if github:
+        contact_parts.append(f'<a href="{github}" color="blue">Github</a>')
+    if linkedin:
+        contact_parts.append(f'<a href="{linkedin}" color="blue">Linkedin</a>')
+    if portfolio:
+        contact_parts.append(portfolio)
+
+    contact_string = " | ".join(contact_parts)
+
     table.append([
-        Paragraph(f"{email} | {phone} | {address}", CONTACT_PARAGRAPH_STYLE), ''
+        Paragraph(contact_string, CONTACT_PARAGRAPH_STYLE), ''
     ])
     table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))

@@ -19,7 +19,8 @@ ATS_RESUME_ELEMENTS_ORDER = [
     'education',
     'projects',
     'achievements',
-    'certifications'
+    'certifications',
+    'languages'
 ]
 
 JOB_DETAILS_PARAGRAPH_STYLE = ParagraphStyle('job_details_paragraph', leftIndent=12, fontName = GARAMOND_REGULAR, fontSize = 11, leading = 12.5, alignment = TA_JUSTIFY)
