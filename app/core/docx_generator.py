@@ -196,7 +196,8 @@ def process_resume_sections(resume_data):
     if 'experience' in resume_data and resume_data['experience']:
         for element in resume_data['experience']:
             experience_elements.append(get_experience_element(element))
-        processed_resume_data['experience'] = Section('PROFESSIONAL EXPERIENCE', experience_elements)
+        if experience_elements:  # Only add section if there are elements
+            processed_resume_data['experience'] = Section('PROFESSIONAL EXPERIENCE', experience_elements)
     
     # Process skills data
     skill_elements = []
@@ -204,26 +205,46 @@ def process_resume_sections(resume_data):
         skills_data = resume_data['skills']
         
         if isinstance(skills_data, dict):
-            # Process different skill categories
-            if 'frameworks/libraries' in skills_data:
-                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks/libraries']))
-            elif 'frameworks' in skills_data:
-                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks']))
-            
-            if 'languages' in skills_data:
+            # Process technical skills
+            if 'technical' in skills_data and skills_data['technical']:
+                skill_elements.append(get_skills_element('Technical Skills', skills_data['technical']))
+
+            # Process programming languages
+            if 'languages' in skills_data and skills_data['languages']:
                 skill_elements.append(get_skills_element('Programming Languages', skills_data['languages']))
-            
-            if 'technologies' in skills_data:
+
+            # Process frameworks
+            if 'frameworks' in skills_data and skills_data['frameworks']:
+                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks']))
+            elif 'frameworks/libraries' in skills_data and skills_data['frameworks/libraries']:
+                skill_elements.append(get_skills_element('Frameworks & Libraries', skills_data['frameworks/libraries']))
+
+            # Process tools
+            if 'tools' in skills_data and skills_data['tools']:
+                skill_elements.append(get_skills_element('Tools', skills_data['tools']))
+
+            # Process technologies (legacy field)
+            if 'technologies' in skills_data and skills_data['technologies']:
                 skill_elements.append(get_skills_element('Technologies', skills_data['technologies']))
-            
-            if 'others' in skills_data:
+
+            # Process methodologies
+            if 'methodologies' in skills_data and skills_data['methodologies']:
+                skill_elements.append(get_skills_element('Methodologies', skills_data['methodologies']))
+
+            # Process soft skills
+            if 'soft_skills' in skills_data and skills_data['soft_skills']:
+                skill_elements.append(get_skills_element('Soft Skills', skills_data['soft_skills']))
+
+            # Process others (legacy field)
+            if 'others' in skills_data and skills_data['others']:
                 skill_elements.append(get_skills_element('Other Skills', skills_data['others']))
         
         elif isinstance(skills_data, list):
             for skill in skills_data:
                 if isinstance(skill, dict) and 'title' in skill:
                     elements = skill.get('elements', [])
-                    skill_elements.append(get_skills_element(skill['title'], elements))
+                    if elements:  # Only add if there are elements
+                        skill_elements.append(get_skills_element(skill['title'], elements))
     
     if skill_elements:
         processed_resume_data['skills'] = Section('CORE COMPETENCIES', skill_elements)
@@ -233,14 +254,16 @@ def process_resume_sections(resume_data):
     if 'education' in resume_data and resume_data['education']:
         for element in resume_data['education']:
             education_elements.append(get_education_element(element))
-        processed_resume_data['education'] = Section('EDUCATION', education_elements)
+        if education_elements:  # Only add section if there are elements
+            processed_resume_data['education'] = Section('EDUCATION', education_elements)
     
     # Process projects data
     project_elements = []
     if 'projects' in resume_data and resume_data['projects'] and len(resume_data['projects']) > 0:
         for element in resume_data['projects']:
             project_elements.append(get_project_element(element))
-        processed_resume_data['projects'] = Section('PROJECTS', project_elements)
+        if project_elements:  # Only add section if there are elements
+            processed_resume_data['projects'] = Section('PROJECTS', project_elements)
 
     # Process achievements data
     if 'achievements' in resume_data and resume_data['achievements']:

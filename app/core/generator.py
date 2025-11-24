@@ -202,17 +202,19 @@ def generate_resume_pdf(author, resume_data):
     
     # Process experience data
     experience_elements = []
-    if 'experience' in resume_data:
+    if 'experience' in resume_data and resume_data['experience']:
         for element in resume_data['experience']:
             experience_elements.append(get_experience_element(element))
-    processed_resume_data['experience'] = Section('EXPERIENCE', experience_elements)
+        if experience_elements:  # Only add section if there are elements
+            processed_resume_data['experience'] = Section('EXPERIENCE', experience_elements)
     
     # Process education data
     education_elements = []
-    if 'education' in resume_data:
+    if 'education' in resume_data and resume_data['education']:
         for element in resume_data['education']:
             education_elements.append(get_education_element(element))
-    processed_resume_data['education'] = Section('EDUCATION', education_elements)
+        if education_elements:  # Only add section if there are elements
+            processed_resume_data['education'] = Section('EDUCATION', education_elements)
     
     # Process projects data
     project_elements = []
@@ -274,7 +276,9 @@ def generate_resume_pdf(author, resume_data):
                     if elements:
                         skill_elements.append(get_skills_element(skill['title'], elements))
 
-    processed_resume_data['skills'] = Section('Skills', skill_elements)
+    # Only add skills section if there are skill elements
+    if skill_elements:
+        processed_resume_data['skills'] = Section('SKILLS', skill_elements)
 
     # Process certifications data
     if 'certifications' in resume_data and resume_data['certifications']:

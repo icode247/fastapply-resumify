@@ -14,7 +14,7 @@ api_token = os.environ.get("OPENAI_API_KEY", "")
 resume_processor = ATSResumeProcessor(api_token)
 
 @bp.route('/optimize-resume', methods=['POST'])
-@cache_response(expiration=7200)  # Cache for 2 hours
+@cache_response(expiration=7200)  
 def optimize_resume():
     """
     Endpoint to optimize a resume for ATS based on a job description
@@ -60,13 +60,12 @@ def optimize_resume():
         }), 500
 
 @bp.route('/generate-resume', methods=['POST'])
-# @cache_response(expiration=7200)  # Cache for 2 hours
+@cache_response(expiration=7200)  
 def generate_resume():
     try:
         job_description = request.json.get('job_description')
         resume_text = request.json.get('resume_text', '')
         user_data = request.json.get('user_data')
-        print(user_data, job_description, resume_text)
 
         if not job_description or not resume_text:
             return jsonify({"error": "Missing required fields"}), 400
