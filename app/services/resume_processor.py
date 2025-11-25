@@ -695,7 +695,7 @@ OUTPUT: Return ONLY valid JSON. No markdown. No commentary.
         try:
             # Call GPT-4 (worth the cost for quality)
             response = client.chat.completions.create(
-                model="gpt-4o",  # or "gpt-4-turbo"
+                model="gpt-4o-mini",  # or "gpt-4-turbo"
                 temperature=0.75,
                 messages=[
                     {"role": "system", "content": system_prompt},
