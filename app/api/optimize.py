@@ -70,9 +70,6 @@ def generate_resume():
         if not job_description or not resume_text:
             return jsonify({"error": "Missing required fields"}), 400
 
-        if not user_data:
-            return jsonify({"error": "User data is required"}), 400
-
         optimized_data = resume_processor.process_resume(resume_text, job_description, user_data)
         return jsonify({
             "success": True,
