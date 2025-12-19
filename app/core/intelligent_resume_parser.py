@@ -59,7 +59,7 @@ class IntelligentResumeParser:
                         "content": prompt
                     }
                 ],
-                model="gpt-4o-mini",
+                model="gpt-4.1",
                 temperature=0.2,
                 response_format={"type": "json_object"},
                 timeout=50,  # Set timeout to 50 seconds (less than Gunicorn's 60s)

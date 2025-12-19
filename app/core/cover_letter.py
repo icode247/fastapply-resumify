@@ -75,7 +75,7 @@ Your goal: Create cover letters that hiring managers believe the candidate wrote
                         "content": prompt
                     }
                 ],
-                model="gpt-4o-mini",
+                model="gpt-4.1",
                 temperature=0.85,
                 response_format={"type": "json_object"},
             )

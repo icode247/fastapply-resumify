@@ -400,7 +400,7 @@ Your goal: Create resumes that hiring managers believe were written by the candi
                         "content": prompt
                     }
                 ],
-                model="gpt-4o-mini",
+                model="gpt-4.1",
                 temperature=0.7,
             )
             result = chat_completion.choices[0].message.content

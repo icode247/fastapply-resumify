@@ -27,7 +27,7 @@ class JobMatcherAI:
             if not api_key:
                 raise ValueError("OPENAI_API_KEY environment variable is required when USE_CHATGPT=true")
             self.client = OpenAI(api_key=api_key)
-            self.model = "gpt-4o"
+            self.model = "gpt-4o-mini"
         else:
             hf_token = os.environ.get('HF_TOKEN')
             if not hf_token:
