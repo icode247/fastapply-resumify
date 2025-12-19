@@ -58,17 +58,15 @@ class CoverLetterGenerator:
                 messages=[
                     {
                         "role": "system",
-                        "content": """You are an expert career coach who writes compelling, authentic cover letters that sound 100% human-written. Your cover letters:
-- Pass ALL AI detection tools (GPTZero, Originality.ai, etc.) as 100% human-written
-- Sound like the candidate wrote it themselves - natural, confident, direct
-- Use varied sentence structures and authentic human phrasing
-- Show genuine enthusiasm without sounding desperate or robotic
-- Connect real experiences to job requirements in a natural way
-- Avoid all AI-generated phrases and clichés
-- Write brief, punchy, impactful sentences
-- Focus on specific achievements and concrete examples
-- Sound professional but conversational, not stiff or formulaic
-Your goal: Create cover letters that hiring managers believe the candidate wrote themselves."""
+                        "content": """You are a professional career coach who writes polished, structured cover letters. Your cover letters:
+- Follow a clear 4-paragraph structure: Hook, Evidence, Bridge, Close
+- Use formal professional language appropriate for job applications
+- Include specific achievements with quantifiable metrics when available
+- Connect candidate experience directly to job requirements
+- Are concise and respectful of the hiring manager's time
+- Sound confident without being arrogant
+- Never use casual slang, buzzwords, or overly creative phrasing
+Your goal: Create cover letters that demonstrate professionalism and clear value alignment."""
                     },
                     {
                         "role": "user",
@@ -76,7 +74,7 @@ Your goal: Create cover letters that hiring managers believe the candidate wrote
                     }
                 ],
                 model="gpt-4.1",
-                temperature=0.85,
+                temperature=0.4,
                 response_format={"type": "json_object"},
             )
             
@@ -118,159 +116,108 @@ Your goal: Create cover letters that hiring managers believe the candidate wrote
         Returns:
             String containing the prompt
         """
-        # Get current date for the letter
-        current_date = datetime.now().strftime("%B %d, %Y")
-        
-        # Set tone based on input or default to Professional
-        tone = letter_data.get('tone', 'Professional')
-        
         # Process work experience data
         work_experience = ""
-        if letter_data.get('fullPositions'):
-            work_experience = "CANDIDATE'S ACTUAL WORK EXPERIENCE:\n"
-            for position in letter_data.get('fullPositions', []):
-                work_experience += f"- {position.get('role', 'N/A')} at {position.get('company', 'N/A')} ({position.get('type', 'N/A')}) - {position.get('duration', 'N/A')} in {position.get('location', 'N/A')}\n"
+        current_role = ""
+        current_company = ""
+        previous_role = ""
+        previous_company = ""
         
-        # Process skills and education if provided
+        if letter_data.get('fullPositions'):
+            positions = letter_data.get('fullPositions', [])
+            work_experience = "CANDIDATE'S WORK EXPERIENCE:\n"
+            for i, position in enumerate(positions):
+                role = position.get('role', 'N/A')
+                company = position.get('company', 'N/A')
+                duration = position.get('duration', 'N/A')
+                location = position.get('location', 'N/A')
+                description = position.get('description', '')
+                
+                work_experience += f"- {role} at {company} ({duration}, {location})\n"
+                if description:
+                    work_experience += f"  Description: {description}\n"
+                
+                # Track current and previous roles for template
+                if i == 0:
+                    current_role = role
+                    current_company = company
+                elif i == 1:
+                    previous_role = role
+                    previous_company = company
+        
+        # Process skills and education
         skills_section = f"SKILLS: {letter_data.get('skills', '')}" if letter_data.get('skills') else ""
         education_section = f"EDUCATION: {letter_data.get('education', '')}" if letter_data.get('education') else ""
         
         # Get job description
         job_description = letter_data.get('jobDescription', '')
         
-        prompt = f"""
-        Generate a 100% HUMAN-SOUNDING, highly personalized cover letter that passes ALL AI detection tools and connects directly to the company's mission and culture.
+        prompt = f"""Generate a professional cover letter following this EXACT 4-paragraph structure.
 
-        ANTI-AI DETECTION REQUIREMENTS (CRITICAL):
-        - Write like a real person telling their story, natural and authentic
-        - Use contractions occasionally (I'm, I've, they're) to sound human
-        - Vary sentence length dramatically (some 5 words, some 20+ words)
-        - Show personality and genuine enthusiasm without sounding robotic
-        - Use specific numbers, company names, and concrete examples
-        - Write how people talk, not how AI writes
-        - NO formulaic openings like "I am writing to express my interest" or "When I came across"
-        - Start with WHY the company excites you (their products, mission, engineering culture)
-        - Sound confident but not arrogant, enthusiastic but not desperate
+CANDIDATE INFORMATION:
+- Full Name: {letter_data.get('fullName', '')}
+- Current Role: {current_role if current_role else 'Not specified'}
+- Current Company: {current_company if current_company else 'Not specified'}
 
-        APPLICANT INFORMATION:
-        - Full Name: {letter_data.get('fullName', '')}
-        - Desired Tone: {tone} (but keep it genuinely human)
+{work_experience}
 
-        JOB DESCRIPTION TO ANALYZE:
-        ```
-        {job_description}
-        ```
+{skills_section}
+{education_section}
 
-        {work_experience}
+JOB DESCRIPTION:
+{job_description}
 
-        {skills_section}
-        {education_section}
+---
 
-        STEP 1 - DEEP ANALYSIS (Do this first, don't include in output):
-        Extract from job description:
-        - EXACT company name
-        - EXACT job title
-        - Company mission, products, or engineering culture clues
-        - Key technical requirements
-        - Scale indicators (users, requests, data volume)
-        - Values they emphasize (collaboration, innovation, impact, etc.)
+REQUIRED STRUCTURE (Follow this template exactly):
 
-        STEP 2 - CRAFT THE COVER LETTER:
-        
-        OPENING PARAGRAPH (2-3 sentences):
-        ✅ DO: Start with why THIS company specifically excites you
-        - Reference their products, mission, scale, or engineering culture
-        - Show you understand what makes them unique
-        - Connect your passion to their values
-        ❌ AVOID: Generic excitement, "I came across this role", template phrases
-        
-        EXAMPLES:
-        ✓ "As a developer passionate about building scalable systems, I've admired how [Company] engineers design products that seamlessly serve billions of users. The [Job Title] role aligns perfectly with my drive to build solutions that perform at massive scale."
-        ✓ "I've spent the last three years building distributed systems that handle millions of transactions daily. [Company]'s focus on [specific tech/mission] is exactly the kind of challenge I want to tackle next."
-        
-        BODY PARAGRAPHS (2 paragraphs, 3-4 sentences each):
-        ✅ DO: Connect achievements to VALUE for the company
-        - Lead with specific, quantified achievements
-        - Explicitly state how this experience benefits THEM
-        - Tie accomplishments to their scale, tech stack, or challenges
-        - Use language like "I'm excited to bring this experience to..."
-        ❌ AVOID: Just listing what you did without connecting to their needs
-        
-        EXAMPLE STRUCTURE:
-        "At [Their Company], I led a team that built [specific system] supporting [X million] users. This reduced downtime by [X%] and increased deployment frequency, directly improving user satisfaction. This experience mirrors [Company]'s focus on [their value], and I'm excited to bring this background to enhance [their product/system]."
-        
-        CLOSING PARAGRAPH (2-3 sentences):
-        ✅ DO: Reaffirm enthusiasm with confidence
-        - Reference their mission or impact
-        - Show excitement about contributing to their goals
-        - End with forward momentum, not desperation
-        ❌ AVOID: "I look forward to the possibility" or weak, vague statements
-        
-        EXAMPLES:
-        ✓ "I'd be thrilled to bring my experience building scalable, user-focused systems to [Company]'s mission of [their mission], and I'm excited about contributing to projects that touch billions of lives."
-        ✓ "I'm eager to apply my background in [tech] to help [Company] continue building products that [their impact]."
-        
-        OUTPUT STRUCTURE (250-350 words):
-        - NO DATE (omit for modern applications)
-        - Salutation: "Dear Hiring Manager," (or name if found)
-        - Opening: Why THIS company excites you
-        - Body 1: Achievement + value to company
-        - Body 2: Achievement + connection to their needs  
-        - Closing: Confident enthusiasm about their mission
-        - Signature: "Sincerely," or "Best regards," then name
-        
-        Return valid JSON:
-        {{
-        "header": "",
-        "salutation": "Dear Hiring Manager,",
-        "introductionParagraph": "Opening showing specific excitement about THIS company's mission/products/culture",
-        "bodyParagraphs": [
-            "Achievement with numbers + how this benefits the company specifically",
-            "Another achievement + direct connection to their technical challenges or scale"
-        ],
-        "closingParagraph": "Confident, enthusiastic statement about contributing to their mission or impact",
-        "signature": "Sincerely,\\n\\n{letter_data.get('fullName', '')}",
-        "fullLetter": "Complete formatted cover letter"
-        }}
-        
-        CRITICAL REQUIREMENTS:
-        - Use EXACT company name from job description
-        - Reference their ACTUAL work experience: {', '.join([pos.get('company', '') for pos in letter_data.get('fullPositions', [])[:3]])}
-        - Include specific numbers and metrics
-        - Every achievement MUST connect to value for the company
-        - Tailor to company culture/mission from job description
-        - 250-350 words total
-        - NO fabrication of experience
-        - Pass AI detection as 100% human
+**PARAGRAPH 1 - THE HOOK (2-3 sentences):**
+Start with: "I am writing to express my interest in the [Role Name] position at [Company]."
+Then: Reference something specific about the company (recent project, industry trend, company mission).
+End with: Connect your top skill to a specific goal mentioned in the job description.
 
-        OPENING COMPARISON:
-        ❌ "When I came across [Company]'s opening for [Job Title], I felt a rush of excitement."
-        ✓ "As a developer passionate about building scalable systems, I've always admired how [Company] engineers design products that seamlessly serve billions of users."
+**PARAGRAPH 2 - THE EVIDENCE (3-4 sentences):**
+Start with: "In my current role as [Current Job Title], I specialize in [Core Competency]."
+Then: Describe a major achievement with specific metrics (e.g., "reduced costs by 20%", "improved performance by 30%").
+Include: What action you took to achieve this result.
+Add: A second achievement from a previous role that directly aligns with a requirement in the job description.
 
-        VALUE-FOCUSED LANGUAGE:
-        ❌ "At Tech Solutions, I led the design of a distributed microservices system."
-        ✓ "At Tech Solutions, I led the design of a distributed microservices system that supported millions of users. This experience mirrors [Company]'s focus on reliability and scalability in products like [their products], and I'm excited to bring this background to enhance [Company]'s infrastructure."
+**PARAGRAPH 3 - THE BRIDGE (2-3 sentences):**
+Start with: "I am particularly drawn to this role because [Company] prioritizes [Value/Technology from JD]."
+Then: Connect your technical expertise in specific skills to their needs.
+End with: State how you are positioned to contribute to a specific team objective.
 
-        CLOSING COMPARISON:
-        ❌ "I look forward to the possibility of discussing how my background can support your team's goals."
-        ✓ "I'd be thrilled to bring my experience building resilient systems to [Company]'s mission of [mission], and I'm excited to contribute to projects that touch billions of lives."
+**PARAGRAPH 4 - THE CLOSE (2 sentences):**
+"I would appreciate the opportunity to discuss how my experience aligns with your goals. Thank you for your time and consideration."
 
-        WRITING RULES:
-        SHOULD use clear, simple language
-        SHOULD be spartan and informative
-        SHOULD use short, impactful sentences
-        SHOULD use active voice
-        SHOULD focus on practical examples
-        SHOULD use data and numbers
+---
 
-        AVOID em dashes, semicolons, markdown, asterisks
-        AVOID constructions like "not just this, but also this"
-        AVOID metaphors and clichés
-        AVOID generalizations
-        AVOID setup language like "in conclusion"
-        AVOID unnecessary adjectives and adverbs
-        AVOID these words: "can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving"
-        """
+WRITING GUIDELINES:
+- Use formal, professional language throughout
+- Include specific metrics and numbers from the candidate's experience
+- Reference the EXACT company name and job title from the job description
+- Connect achievements directly to job requirements
+- Keep the total length to 250-350 words
+- Do NOT fabricate any experience or achievements
+- Do NOT use casual phrases, slang, or overly creative language
+- Do NOT use em-dashes, semicolons, or excessive adjectives
+
+WORDS TO AVOID:
+passionate, excited, thrilled, amazing, incredible, game-changer, cutting-edge, groundbreaking, delve, leverage, synergy, dynamic, robust, innovative, revolutionize
+
+Return valid JSON:
+{{
+    "header": "",
+    "salutation": "Dear Hiring Manager,",
+    "introductionParagraph": "The Hook paragraph - interest, company reference, skill connection",
+    "bodyParagraphs": [
+        "The Evidence paragraph - current role, achievements, metrics, previous experience",
+        "The Bridge paragraph - why this company, skills match, contribution potential"
+    ],
+    "closingParagraph": "The Close paragraph - request to discuss, thank you",
+    "signature": "Sincerely,\\n\\n{letter_data.get('fullName', '')}",
+    "fullLetter": "Complete formatted cover letter with all paragraphs combined"
+}}"""
         
         return prompt
 
