@@ -5,6 +5,7 @@ Miscellaneous helper functions.
 import re
 from app.utils.elements.resume_education import Education
 from app.utils.elements.resume_experience import Experience
+from app.utils.elements.consulting_experience import ConsultingExperience
 from app.utils.elements.resume_project import Project
 from app.utils.elements.resume_skill import Skill
 from app.utils.elements.resume_achievement import Achievement
@@ -82,6 +83,39 @@ def get_experience_element(element) -> Experience:
     else:
         e.set_description([])
     
+    return e
+
+def get_consulting_experience_element(element) -> ConsultingExperience:
+    """Get consulting experience element with skill-header format."""
+    e = ConsultingExperience()
+    e.set_company(element.get('company', ''))
+    e.set_title(element.get('title', ''))
+    e.set_location(element.get('location', ''))
+
+    # Handle different date formats
+    if 'start_date' in element and 'end_date' in element:
+        e.set_start_date(element.get('start_date', ''))
+        e.set_end_date(element.get('end_date', ''))
+    elif 'period' in element:
+        # Try to parse period field which might contain both start and end dates
+        period_text = element.get('period', '')
+        if '–' in period_text or '-' in period_text:
+            parts = period_text.replace('–', '-').split('-')
+            if len(parts) == 2:
+                e.set_start_date(parts[0].strip())
+                e.set_end_date(parts[1].strip())
+            else:
+                e.set_end_date(period_text)
+        else:
+            e.set_end_date(period_text)
+
+    # Handle description field - expecting list of dicts with skillHeader and bullet
+    description = element.get('description', [])
+    if isinstance(description, list):
+        e.set_description(description)
+    else:
+        e.set_description([])
+
     return e
 
 def get_project_element(element) -> Project:
