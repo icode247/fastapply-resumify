@@ -363,7 +363,7 @@ def generate_resume_pdf(author, resume_data):
             Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
-        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 8))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
         table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         running_row_index[0] += 1
     
@@ -407,7 +407,7 @@ def generate_resume_to_buffer(buffer, author, table, table_styles):
     
     # Build the PDF
     elements = []
-    t = Table(table, colWidths=['*', '*'])
+    t = Table(table, colWidths=['70%', '30%'])
     t.setStyle(TableStyle(table_styles))
     elements.append(t)
     
@@ -612,7 +612,7 @@ def generate_consulting_resume_pdf(author, resume_data):
             Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
-        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 8))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
         table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         running_row_index[0] += 1
 

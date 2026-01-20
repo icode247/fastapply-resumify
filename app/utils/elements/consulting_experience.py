@@ -10,8 +10,8 @@ SKILL_HEADER_BULLET_STYLE = ParagraphStyle(
     'skill_header_bullet',
     leftIndent=12,
     fontName=GARAMOND_REGULAR,
-    fontSize=11,
-    leading=12,
+    fontSize=12,
+    leading=13,
     alignment=TA_JUSTIFY
 )
 
