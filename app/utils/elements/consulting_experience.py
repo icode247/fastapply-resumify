@@ -11,7 +11,7 @@ SKILL_HEADER_BULLET_STYLE = ParagraphStyle(
     leftIndent=12,
     fontName=GARAMOND_REGULAR,
     fontSize=11,
-    leading=12.5,
+    leading=12,
     alignment=TA_JUSTIFY
 )
 
@@ -66,14 +66,16 @@ class ConsultingExperience:
             Paragraph(company_name, COMPANY_HEADING_PARAGRAPH_STYLE),
             Paragraph(location, COMPANY_DURATION_PARAGRAPH_STYLE)
         ])
-        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         running_row_index[0] += 1
 
         experience_table.append([
             Paragraph(self.title, COMPANY_TITLE_PARAGRAPH_STYLE),
             Paragraph(f"{self.start_date} - {self.end_date}", COMPANY_DURATION_PARAGRAPH_STYLE)
         ])
-        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         running_row_index[0] += 1
 
         for item in self.description:
@@ -84,17 +86,17 @@ class ConsultingExperience:
                 # Format: "SkillHeader: Bullet text" with skill header in bold using explicit font
                 formatted_text = f'<font name="{GARAMOND_SEMIBOLD}">{skill_header}:</font> {bullet_text}'
                 experience_table.append([
-                    Paragraph(formatted_text, bulletText='•', style=SKILL_HEADER_BULLET_STYLE)
+                    Paragraph(formatted_text, bulletText='•', style=SKILL_HEADER_BULLET_STYLE), ''
                 ])
             elif isinstance(item, str):
                 # Fallback for plain string descriptions
                 experience_table.append([
-                    Paragraph(item, bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE)
+                    Paragraph(item, bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE), ''
                 ])
             else:
                 continue
 
-            table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+            table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
             table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
             table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
             running_row_index[0] += 1

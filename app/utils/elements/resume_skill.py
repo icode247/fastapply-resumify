@@ -21,9 +21,9 @@ class Skill:
         # Fix the syntax error in joining elements
         elements_string = ", ".join(word for word in self.elements if word)
         table.append([
-            Paragraph(f"<font face='Garamond_Semibold'>{self.title}:</font> {elements_string}", bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE)
+            Paragraph(f"<font face='Garamond_Semibold'>{self.title}:</font> {elements_string}", bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE), ''
         ])
-        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         running_row_index[0] += 1

@@ -351,17 +351,16 @@ def generate_resume_pdf(author, resume_data):
     if summary_text:
         # Add summary section header
         table.append([
-            Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE)
+            Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
-        table_styles.append(('LINEBELOW', (0, running_row_index[0]), (-1, running_row_index[0]), 1, colors.black))
         table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         running_row_index[0] += 1
         
         # Add summary content
         table.append([
-            Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE)
+            Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 8))
@@ -602,16 +601,15 @@ def generate_consulting_resume_pdf(author, resume_data):
     summary_text = resume_data.get('summary', '')
     if summary_text:
         table.append([
-            Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE)
+            Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
-        table_styles.append(('LINEBELOW', (0, running_row_index[0]), (-1, running_row_index[0]), 1, colors.black))
         table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
         running_row_index[0] += 1
 
         table.append([
-            Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE)
+            Paragraph(summary_text, CONTACT_PARAGRAPH_STYLE), ''
         ])
         table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
         table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 8))

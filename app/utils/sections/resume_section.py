@@ -15,7 +15,7 @@ class Section:
     def get_section_table(self, running_row_index : list, table_styles : list) -> list:
         section_table = []
         section_table.append(
-            [ Paragraph(self.heading, SECTION_PARAGRAPH_STYLE) ]
+            [ Paragraph(self.heading, SECTION_PARAGRAPH_STYLE), '' ]
         )
         appendSectionTableStyle(table_styles, running_row_index)
         running_row_index[0] += 1

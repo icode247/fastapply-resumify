@@ -41,25 +41,27 @@ class Experience:
             Paragraph(self.company, COMPANY_HEADING_PARAGRAPH_STYLE),
             Paragraph(f"{self.start_date} - {self.end_date}", COMPANY_DURATION_PARAGRAPH_STYLE)
         ])
-        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 5))
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         running_row_index[0] += 1
-        
+
         experience_table.append([
             Paragraph(self.title, COMPANY_TITLE_PARAGRAPH_STYLE),
             Paragraph(self.location, COMPANY_LOCATION_PARAGRAPH_STYLE)
         ])
-        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+        table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
+        table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
         running_row_index[0] += 1
-        
+
         for line in self.description:
             experience_table.append([
-                Paragraph(line, bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE)
+                Paragraph(line, bulletText='•', style=JOB_DETAILS_PARAGRAPH_STYLE), ''
             ])
-            table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+            table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
             table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
             table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
             running_row_index[0] += 1
-        
+
         return experience_table
     
     def get_docx_content(self, doc):

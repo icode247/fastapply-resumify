@@ -18,10 +18,10 @@ class Achievement:
         for achievement in self.elements:
             if achievement:
                 table.append([
-                    Paragraph(f"• {achievement}", style=JOB_DETAILS_PARAGRAPH_STYLE)
+                    Paragraph(f"• {achievement}", style=JOB_DETAILS_PARAGRAPH_STYLE), ''
                 ])
-                table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
-                table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
+                table_styles.append(('TOPPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
+                table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 0))
                 table_styles.append(('SPAN', (0, running_row_index[0]), (1, running_row_index[0])))
                 running_row_index[0] += 1
         return table
