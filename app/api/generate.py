@@ -3,13 +3,54 @@ Resume generation API endpoints.
 """
 from flask import Blueprint, request, jsonify, send_file
 import io
+import os
 import logging
+from openai import OpenAI
 from app.core.generator import generate_resume_pdf, generate_consulting_resume_pdf
 from app.core.docx_generator import generate_resume_docx
 
 # Create blueprint
 bp = Blueprint('generate', __name__)
 logger = logging.getLogger(__name__)
+
+
+def detect_resume_type(title: str) -> str:
+    """
+    Detect if a resume is technical or consulting based on the job title.
+
+    Args:
+        title: The job title from resume_data
+
+    Returns:
+        'technical' or 'consulting'
+    """
+    if not title:
+        return 'technical'  # Default to technical if no title
+
+    try:
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", ""))
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Is this job title technical or consulting? Title: '{title}'. Reply with only one word: 'technical' or 'consulting'."
+                }
+            ],
+            max_tokens=10,
+            temperature=0
+        )
+
+        result = response.choices[0].message.content.strip().lower()
+
+        if 'consulting' in result:
+            return 'consulting'
+        return 'technical'
+
+    except Exception as e:
+        logger.error(f"Error detecting resume type: {str(e)}")
+        return 'technical'  # Default to technical on error
 
 @bp.route('/generate-resume-pdf', methods=['POST'])
 def api_generate_resume_pdf():
@@ -21,13 +62,19 @@ def api_generate_resume_pdf():
         # Extract user_data and resume_data
         user_data = data.get('user_data')
         resume_data = data.get('resume_data')
-        resume_type = data.get('resume_type', 'consulting')  # 'technical' or 'consulting'
+        resume_type = data.get('resume_type')  
 
         if not user_data:
             return jsonify({"error": "Missing user_data"}), 400
         if not resume_data:
             return jsonify({"error": "Missing resume_data"}), 400
-        if resume_type not in ['technical', 'consulting']:
+
+        # Auto-detect resume type if not provided
+        if not resume_type:
+            title = resume_data.get('title', '')
+            resume_type = detect_resume_type(title)
+            logger.info(f"Auto-detected resume type: {resume_type} for title: {title}")
+        elif resume_type not in ['technical', 'consulting']:
             return jsonify({"error": "resume_type must be 'technical' or 'consulting'"}), 400
 
         # Extract only author from user_data
@@ -113,7 +160,7 @@ def api_generate_resume():
         user_data = data.get('user_data')
         resume_data = data.get('resume_data')
         format_type = data.get('format', 'docx').lower()  # Default to DOCX for ATS compatibility
-        resume_type = data.get('resume_type', 'technical')  # 'technical' or 'consulting'
+        resume_type = data.get('resume_type')  # 'technical' or 'consulting' (auto-detect if not provided)
 
         if not user_data:
             return jsonify({"error": "Missing user_data"}), 400
@@ -121,7 +168,13 @@ def api_generate_resume():
             return jsonify({"error": "Missing resume_data"}), 400
         if format_type not in ['pdf', 'docx']:
             return jsonify({"error": "Format must be 'pdf' or 'docx'"}), 400
-        if resume_type not in ['technical', 'consulting']:
+
+        # Auto-detect resume type if not provided
+        if not resume_type:
+            title = resume_data.get('title', '')
+            resume_type = detect_resume_type(title)
+            logger.info(f"Auto-detected resume type: {resume_type} for title: {title}")
+        elif resume_type not in ['technical', 'consulting']:
             return jsonify({"error": "resume_type must be 'technical' or 'consulting'"}), 400
 
         # Extract only author from user_data

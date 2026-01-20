@@ -116,27 +116,27 @@ class ConsultingExperience:
         # Company name and location on same line
         company_paragraph = doc.add_paragraph()
         company_run = company_paragraph.add_run(company_name)
-        company_run.font.size = Pt(11)
+        company_run.font.size = Pt(12)
         company_run.font.bold = True
         company_run.font.name = 'Calibri'
 
         # Add location on the same line, right-aligned (bold)
         if location:
             location_run = company_paragraph.add_run(f"\t{location}")
-            location_run.font.size = Pt(11)
+            location_run.font.size = Pt(12)
             location_run.font.bold = True
             location_run.font.name = 'Calibri'
 
         # Job title and period
         title_paragraph = doc.add_paragraph()
         title_run = title_paragraph.add_run(self.title)
-        title_run.font.size = Pt(11)
+        title_run.font.size = Pt(12)
         title_run.font.italic = True
         title_run.font.name = 'Calibri'
 
         # Add dates on the same line, right-aligned
         dates_run = title_paragraph.add_run(f"\t{self.start_date} - {self.end_date}")
-        dates_run.font.size = Pt(11)
+        dates_run.font.size = Pt(12)
         dates_run.font.name = 'Calibri'
 
         # Description bullets with skill headers
@@ -148,23 +148,23 @@ class ConsultingExperience:
                 desc_paragraph = doc.add_paragraph()
                 # Add bullet
                 bullet_run = desc_paragraph.add_run("• ")
-                bullet_run.font.size = Pt(11)
+                bullet_run.font.size = Pt(12)
                 bullet_run.font.name = 'Calibri'
 
                 # Add skill header (bold)
                 header_run = desc_paragraph.add_run(f"{skill_header}: ")
-                header_run.font.size = Pt(11)
+                header_run.font.size = Pt(12)
                 header_run.font.bold = True
                 header_run.font.name = 'Calibri'
 
                 # Add bullet text
                 text_run = desc_paragraph.add_run(bullet_text)
-                text_run.font.size = Pt(11)
+                text_run.font.size = Pt(12)
                 text_run.font.name = 'Calibri'
             elif isinstance(item, str) and item.strip():
                 desc_paragraph = doc.add_paragraph()
                 desc_run = desc_paragraph.add_run(f"• {item}")
-                desc_run.font.size = Pt(11)
+                desc_run.font.size = Pt(12)
                 desc_run.font.name = 'Calibri'
 
         # Add space after experience
