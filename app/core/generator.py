@@ -827,9 +827,9 @@ def generate_jake_resume_pdf(author, resume_data, years_of_experience=0, is_cons
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
     running_row_index[0] += 1
 
-    # Jake's template includes optional summary section (only for 3+ years experience)
+    # Jake's template includes summary section
     summary_text = resume_data.get('summary', '')
-    if summary_text and years_of_experience >= 3:
+    if summary_text:
         # Add summary section header
         table.append([
             Paragraph('SUMMARY', SECTION_PARAGRAPH_STYLE), ''
@@ -1077,9 +1077,9 @@ def generate_harvard_resume_pdf(author, resume_data, years_of_experience=0, is_c
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 2))
     running_row_index[0] += 1
 
-    # Harvard template includes summary section (only for 3+ years experience)
+    # Harvard template includes summary section
     summary_text = resume_data.get('summary', '')
-    if summary_text and years_of_experience >= 3:
+    if summary_text:
         # Add summary section header
         table.append([
             Paragraph('SUMMARY', HARVARD_SECTION_PARAGRAPH_STYLE), ''
